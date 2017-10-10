@@ -1,16 +1,20 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-kc">
 	<template>
-		<style include="shared-styles">
+		<style include="shared-styles iron-flex iron-flex-alignment">
 			:host {
 				display : block;
 				padding : 10px;
@@ -19,6 +23,22 @@
 			ul {
 				list-style   : none;
 				padding-left : 0;
+			}
+
+			paper-dropdown-menu {
+				@apply --layout-flex;
+				margin : 0 8px;
+			}
+
+			@media ( max-width : 767px ) {
+				:host {
+
+				}
+
+				#selections, .textAreas {
+					@apply --layout-vertical;
+				}
+
 			}
 		</style>
 
@@ -33,8 +53,10 @@
 				   on-error="_confirmError">
 		</iron-ajax>
 
-		<div class="card">
-			<paper-dropdown-menu id="applications" label="Applications" placeholder="Select An Application"
+		<div id="selections" class="card layout container flex horizontal">
+			<paper-dropdown-menu id="applications"
+								 label="Applications"
+								 placeholder="Select An Application"
 								 value="{{selections.application}}">
 				<paper-listbox slot="dropdown-content" selected="{{selections.applicationIdx}}">
 					<template is="dom-repeat" items="[[applications]]">
@@ -43,8 +65,11 @@
 				</paper-listbox>
 			</paper-dropdown-menu>
 
-			<paper-dropdown-menu disabled$="[[!selections.application]]" id="categories" label="Categories"
-								 placeholder="Select A Category" value="{{selections.category}}">
+			<paper-dropdown-menu disabled$="[[!selections.application]]"
+								 id="categories"
+								 label="Categories"
+								 placeholder="Select A Category"
+								 value="{{selections.category}}">
 				<paper-listbox slot="dropdown-content" selected="{{selections.categoryIdx}}">
 					<template is="dom-repeat" items="[[categories]]">
 						<paper-item value="[[item]]">[[item]]</paper-item>
@@ -52,8 +77,11 @@
 				</paper-listbox>
 			</paper-dropdown-menu>
 
-			<paper-dropdown-menu disabled$="[[!selections.category]]" id="subCategories" label="Subcategories"
-								 placeholder="Select A Subcategory" value="{{selections.subCategory}}">
+			<paper-dropdown-menu disabled$="[[!selections.category]]"
+								 id="subCategories"
+								 label="Subcategories"
+								 placeholder="Select A Subcategory"
+								 value="{{selections.subCategory}}">
 				<paper-listbox slot="dropdown-content" selected="{{selections.subCategoryIdx}}">
 					<template is="dom-repeat" items="[[subCategories]]">
 						<paper-item value="[[item]]">[[item]]</paper-item>
@@ -61,8 +89,11 @@
 				</paper-listbox>
 			</paper-dropdown-menu>
 
-			<paper-dropdown-menu disabled$="[[!selections.subCategory]]" id="issues" label="Issues"
-								 placeholder="Select An Issue" value="{{selections.issue}}">
+			<paper-dropdown-menu disabled$="[[!selections.subCategory]]"
+								 id="issues"
+								 label="Issues"
+								 placeholder="Select An Issue"
+								 value="{{selections.issue}}">
 				<paper-listbox slot="dropdown-content" selected="{{selections.issueIdx}}">
 					<template is="dom-repeat" items="[[issues]]">
 						<paper-item value="[[item]]">[[item]]</paper-item>
@@ -71,13 +102,28 @@
 			</paper-dropdown-menu>
 		</div>
 
-		<div class="card">
-			<paper-textarea id="script"
-							label="Script"
-							value="[[script]]"
-							placeholder="Script will appear here">
-			</paper-textarea>
-		</div>
+		<paper-tabs selected="{{showWorkInstructions}}">
+			<paper-tab>Script</paper-tab>
+			<paper-tab>Work Instructions</paper-tab>
+		</paper-tabs>
+
+		<iron-pages selected="{{showWorkInstructions}}">
+			<div class="textAreas card">
+				<paper-textarea id="script"
+								label="Script"
+								value="[[script]]"
+								placeholder="Script will appear here">
+				</paper-textarea>
+			</div>
+			<div class="textAreas card">
+				<paper-textarea id="workInstructions"
+								label="Work Instructions"
+								value="[[workInstructions]]"
+								readonly="true"
+								placeholder="Work instructions will appear here">
+				</paper-textarea>
+			</div>
+		</iron-pages>
 	</template>
 
 	<script>
@@ -88,18 +134,17 @@
 
         static get properties () {
           return {
+            applications  : Array,
+            categories    : Array,
+            body          : Object,
+            issues        : Array,
             params        : {
               type  : Object,
               value : {
                 tools : true
               }
             },
-            body          : Object,
             response      : Array,
-            applications  : Array,
-            categories    : Array,
-            subCategories : Array,
-            issues        : Array,
             script        : String,
             selections    : {
               type   : Object,
@@ -107,7 +152,13 @@
               value  : function () {
                 return {};
               }
-            }
+            },
+			showWorkInstructions: {
+              type: Number,
+			  value: 0
+			},
+            subCategories : Array,
+			workInstruction: String
           };
         }
 
@@ -122,8 +173,10 @@
         }
 
         _scriptChanged () {
-          //debugger;
-          console.log( this.script );
+		  if ( this.script ) {
+		    this.params.flag = true;
+            this.$.dbQueryIA.generateRequest();
+		  }
         }
 
         handleResponse ( res ) {
@@ -139,6 +192,9 @@
             }
             else if ( this.selections.application && this.selections.category && this.selections.subCategory && !this.selections.issue ) {
               this.issues = this.response.sort();
+            }
+            else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue && this.params.flag ) {
+              this.workInstructions = this.response[ 0 ];
             }
             else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue ) {
               this.script = this.response[ 0 ];
@@ -156,6 +212,7 @@
             delete this.params.category;
             delete this.params.sub_category;
             delete this.params.issue;
+            delete this.params.flag;
 
             this.selections.category = this.selections.categoryIdx = null;
             this.selections.subCategory = this.selections.subCategoryIdx = null;
@@ -181,6 +238,7 @@
           if ( category ) {
             delete this.params.sub_category;
             delete this.params.issue;
+            delete this.params.flag;
 
             this.selections.subCategory = this.selections.subCategoryIdx = null;
             this.selections.issue = this.selections.issueIdx = null;
@@ -201,6 +259,7 @@
         _subCategoryChanged ( subCategory ) {
           if ( subCategory ) {
             delete this.params.issue;
+            delete this.params.flag;
 
             this.selections.issue = this.selections.issueIdx = null;
 
@@ -215,6 +274,7 @@
 
         _issueChanged ( issue ) {
           if ( issue ) {
+            delete this.params.flag;
             this.params.issue = this.selections.issue;
             this.$.dbQueryIA.generateRequest();
           }
@@ -226,13 +286,12 @@
           if ( selection === 'application' ) {
             value = this.selections.application ? selection.application : 'Select an application';
           }
-          console.log( value );
           return value;
         }
 
         ready () {
           super.ready();
-          this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
+          //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
         }
       }
 

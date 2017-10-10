@@ -22,7 +22,8 @@
     "web-animations-js": "^2.3.1",
     "paper-input": "PolymerElements/paper-input#^2.0.1",
     "paper-item": "PolymerElements/paper-item#^2.0.0",
-    "iron-behaviors": "PolymerElements/iron-behaviors#^2.0.0"
+    "iron-behaviors": "PolymerElements/iron-behaviors#^2.0.0",
+    "paper-tabs": "PolymerElements/paper-tabs#^2.0.0"
   },
   "resolutions": {
     "polymer": "^2.0.0"
