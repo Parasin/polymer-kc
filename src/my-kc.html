@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" herf="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
@@ -9,214 +9,233 @@
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-kc">
-  <template>
-        <style include="shared-styles">
-            :host {
-                display: block;
-                padding: 10px;
+	<template>
+		<style include="shared-styles">
+			:host {
+				display : block;
+				padding : 10px;
+			}
+
+			ul {
+				list-style   : none;
+				padding-left : 0;
+			}
+		</style>
+
+		<iron-ajax id="dbQueryIA"
+				   auto
+				   url="http://138.85.123.229/php/dbquery.php"
+				   content-type="application/x-www-form-urlencoded"
+				   method="POST"
+				   body="[[params]]"
+				   on-response="handleResponse"
+				   last-response="{{response}}"
+				   on-error="_confirmError">
+		</iron-ajax>
+
+		<div class="card">
+			<paper-dropdown-menu id="applications" label="Applications" placeholder="Select An Application"
+								 value="{{selections.application}}">
+				<paper-listbox slot="dropdown-content" selected="{{selections.applicationIdx}}">
+					<template is="dom-repeat" items="[[applications]]">
+						<paper-item value="[[item]]">[[item]]</paper-item>
+					</template>
+				</paper-listbox>
+			</paper-dropdown-menu>
+
+			<paper-dropdown-menu disabled$="[[!selections.application]]" id="categories" label="Categories"
+								 placeholder="Select A Category" value="{{selections.category}}">
+				<paper-listbox slot="dropdown-content" selected="{{selections.categoryIdx}}">
+					<template is="dom-repeat" items="[[categories]]">
+						<paper-item value="[[item]]">[[item]]</paper-item>
+					</template>
+				</paper-listbox>
+			</paper-dropdown-menu>
+
+			<paper-dropdown-menu disabled$="[[!selections.category]]" id="subCategories" label="Subcategories"
+								 placeholder="Select A Subcategory" value="{{selections.subCategory}}">
+				<paper-listbox slot="dropdown-content" selected="{{selections.subCategoryIdx}}">
+					<template is="dom-repeat" items="[[subCategories]]">
+						<paper-item value="[[item]]">[[item]]</paper-item>
+					</template>
+				</paper-listbox>
+			</paper-dropdown-menu>
+
+			<paper-dropdown-menu disabled$="[[!selections.subCategory]]" id="issues" label="Issues"
+								 placeholder="Select An Issue" value="{{selections.issue}}">
+				<paper-listbox slot="dropdown-content" selected="{{selections.issueIdx}}">
+					<template is="dom-repeat" items="[[issues]]">
+						<paper-item value="[[item]]">[[item]]</paper-item>
+					</template>
+				</paper-listbox>
+			</paper-dropdown-menu>
+		</div>
+
+		<div class="card">
+			<paper-textarea id="script"
+							label="Script"
+							value="[[script]]"
+							placeholder="Script will appear here">
+			</paper-textarea>
+		</div>
+	</template>
+
+	<script>
+      class MyKc extends Polymer.Element {
+        static get is () {
+          return 'my-kc';
+        }
+
+        static get properties () {
+          return {
+            params        : {
+              type  : Object,
+              value : {
+                tools : true
+              }
+            },
+            body          : Object,
+            response      : Array,
+            applications  : Array,
+            categories    : Array,
+            subCategories : Array,
+            issues        : Array,
+            script        : String,
+            selections    : {
+              type   : Object,
+              notify : true,
+              value  : function () {
+                return {};
+              }
             }
+          };
+        }
 
-            ul {
-                list-style: none;
-                padding-left: 0;
+        static get observers () {
+          return [
+            '_applicationChanged(selections.application)',
+            '_categoryChanged(selections.category)',
+            '_subCategoryChanged(selections.subCategory)',
+            '_issueChanged(selections.issue)',
+            '_scriptChanged(script)'
+          ];
+        }
+
+        _scriptChanged () {
+          //debugger;
+          console.log( this.script );
+        }
+
+        handleResponse ( res ) {
+          if ( this.response ) {
+            if ( !this.selections.application ) {
+              this.applications = this.response.sort();
             }
-        </style>
-
-        <iron-ajax id="dbQueryIA"
-                   auto
-                   url="http://138.85.231.86/php/dbquery.php"
-                   content-type="application/x-www-form-urlencoded"
-                   method="POST"
-                   body="[[params]]"
-                   on-response="handleResponse"
-                   last-response="{{response}}"
-                   on-error="_confirmError">
-        </iron-ajax>
-
-        <div class="card">
-            <paper-dropdown-menu id="applications" label="Applications" placeholder="Select An Application" value="{{selections.application}}">
-              <paper-listbox slot="dropdown-content" selected="{{selections.applicationIdx}}">
-                <template is="dom-repeat" items="[[applications]]">
-                  <paper-item value="[[item]]">[[item]]</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-dropdown-menu>
-
-            <paper-dropdown-menu disabled$="[[!selections.application]]" id="categories" label="Categories" placeholder="Select A Category" value="{{selections.category}}">
-              <paper-listbox slot="dropdown-content" selected="{{selections.categoryIdx}}">
-                <template is="dom-repeat" items="[[categories]]">
-                  <paper-item value="[[item]]">[[item]]</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-dropdown-menu>
-
-            <paper-dropdown-menu disabled$="[[!selections.category]]" id="subCategories" label="Subcategories" placeholder="Select A Subcategory" value="{{selections.subCategory}}">
-              <paper-listbox slot="dropdown-content" selected="{{selections.subCategoryIdx}}">
-                <template is="dom-repeat" items="[[subCategories]]">
-                  <paper-item value="[[item]]">[[item]]</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-dropdown-menu>
-
-            <paper-dropdown-menu disabled$="[[!selections.subCategory]]" id="issues" label="Issues" placeholder="Select An Issue" value="{{selections.issue}}">
-              <paper-listbox slot="dropdown-content" selected="{{selections.issueIdx}}">
-                <template is="dom-repeat" items="[[issues]]">
-                  <paper-item value="[[item]]">[[item]]</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-dropdown-menu>
-        </div>
-
-        <div class="card" hidden$="[[!selections.issue]]">
-          <paper-textarea id="script" label="Script">{{script}}</paper-textarea>
-        </div>
-    </template>
-
-  <script>
-    class MyKc extends Polymer.Element {
-      static get is() { return 'my-kc'; }
-      static get properties() {
-        return {
-          params: {
-            type  : Object,
-    				value : {
-              tools: true
-    				}
-          },
-          body          : Object,
-          response      : Array,
-          applications  : Array,
-          categories    : Array,
-          subCategories : Array,
-          issues        : Array,
-          script        : String,
-          selections    : {
-            type: Object,
-            notify: true,
-            value: function() { return {}; }
-          }
-        };
-      }
-
-      static get observers() {
-        return [
-          '_applicationChanged(selections.application)',
-          '_categoryChanged(selections.category)',
-          '_subCategoryChanged(selections.subCategory)',
-          '_issueChanged(selections.issue)'
-        ];
-      }
-
-      handleResponse( res ) {
-        if ( this.response ) {
-          if ( !this.selections.application ) {
-            this.applications = this.response.sort();
-          }
-          else if ( this.selections.application && !( this.selections.category || this.selections.subCategory || this.selections.issue ) ) {
-            this.categories = this.response.sort();
-          }
-          else if ( this.selections.application && this.selections.category && !( this.selections.subCategory || this.selections.issue ) ) {
-            this.subCategories = this.response.sort();
-          }
-          else if ( this.selections.application && this.selections.category && this.selections.subCategory && !this.selections.issue ) {
-            this.issues = this.response.sort();
-          }
-          else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue ) {
-            this.script = this.response;
+            else if ( this.selections.application && !( this.selections.category || this.selections.subCategory || this.selections.issue ) ) {
+              this.categories = this.response.sort();
+            }
+            else if ( this.selections.application && this.selections.category && !( this.selections.subCategory || this.selections.issue ) ) {
+              this.subCategories = this.response.sort();
+            }
+            else if ( this.selections.application && this.selections.category && this.selections.subCategory && !this.selections.issue ) {
+              this.issues = this.response.sort();
+            }
+            else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue ) {
+              this.script = this.response[ 0 ];
+            }
           }
         }
-  		}
 
-  		_confirmError( err ) {
-  			console.error( err );
-  		}
+        _confirmError ( err ) {
+          console.error( err );
+        }
 
-      _applicationChanged( application ) {
-        if ( application ) {
-          delete this.params.tools;
-          delete this.params.category;
-          delete this.params.sub_category;
-          delete this.params.issue;
+        _applicationChanged ( application ) {
+          if ( application ) {
+            delete this.params.tools;
+            delete this.params.category;
+            delete this.params.sub_category;
+            delete this.params.issue;
 
-          this.selections.category    = this.selections.categoryIdx    = null;
-          this.selections.subCategory = this.selections.subCategoryIdx = null;
-          this.selections.issue       = this.selections.issueIdx       = null;
+            this.selections.category = this.selections.categoryIdx = null;
+            this.selections.subCategory = this.selections.subCategoryIdx = null;
+            this.selections.issue = this.selections.issueIdx = null;
 
-          this.notifyPath('selections.categoryIdx');
-          this.notifyPath('selections.subCategoryIdx');
-          this.notifyPath('selections.issueIdx');
+            this.notifyPath( 'selections.categoryIdx' );
+            this.notifyPath( 'selections.subCategoryIdx' );
+            this.notifyPath( 'selections.issueIdx' );
 
-          this.$.categories._setSelectedItem(null);
-          this.$.subCategories._setSelectedItem(null);
-          this.$.issues._setSelectedItem(null);
+            this.$.categories._setSelectedItem( null );
+            this.$.subCategories._setSelectedItem( null );
+            this.$.issues._setSelectedItem( null );
 
-          this.$.subCategories.disabled = true;
-          this.$.issues.disabled        = true;
+            this.$.subCategories.disabled = true;
+            this.$.issues.disabled        = true;
 
-          this.params.table = this.params.tool = this.selections.application;
-          this.$.dbQueryIA.generateRequest();
+            this.params.table = this.params.tool = this.selections.application;
+            this.$.dbQueryIA.generateRequest();
+          }
+        }
+
+        _categoryChanged ( category ) {
+          if ( category ) {
+            delete this.params.sub_category;
+            delete this.params.issue;
+
+            this.selections.subCategory = this.selections.subCategoryIdx = null;
+            this.selections.issue = this.selections.issueIdx = null;
+
+            this.notifyPath( 'selections.subCategoryIdx' );
+            this.notifyPath( 'selections.issueIdx' );
+
+            this.$.subCategories._setSelectedItem( null );
+            this.$.issues._setSelectedItem( null );
+
+            this.$.issues.disabled = true;
+
+            this.params.category = this.selections.category;
+            this.$.dbQueryIA.generateRequest();
+          }
+        }
+
+        _subCategoryChanged ( subCategory ) {
+          if ( subCategory ) {
+            delete this.params.issue;
+
+            this.selections.issue = this.selections.issueIdx = null;
+
+            this.notifyPath( 'selections.issueIdx' );
+
+            this.$.issues._setSelectedItem( null );
+
+            this.params.sub_category = this.selections.subCategory;
+            this.$.dbQueryIA.generateRequest();
+          }
+        }
+
+        _issueChanged ( issue ) {
+          if ( issue ) {
+            this.params.issue = this.selections.issue;
+            this.$.dbQueryIA.generateRequest();
+          }
+        }
+
+        _selectionChanged ( selection ) {
+          let value;
+
+          if ( selection === 'application' ) {
+            value = this.selections.application ? selection.application : 'Select an application';
+          }
+          console.log( value );
+          return value;
+        }
+
+        ready () {
+          super.ready();
+          this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
         }
       }
 
-      _categoryChanged( category ) {
-        if ( category ) {
-          delete this.params.sub_category;
-          delete this.params.issue;
-
-          this.selections.subCategory = this.selections.subCategoryIdx = null;
-          this.selections.issue       = this.selections.issueIdx       = null;
-
-          this.notifyPath('selections.subCategoryIdx');
-          this.notifyPath('selections.issueIdx');
-
-          this.$.subCategories._setSelectedItem(null);
-          this.$.issues._setSelectedItem(null);
-
-          this.$.issues.disabled = true;
-
-          this.params.category = this.selections.category;
-          this.$.dbQueryIA.generateRequest();
-        }
-      }
-
-      _subCategoryChanged( subCategory ) {
-        if ( subCategory ) {
-          delete this.params.issue;
-
-          this.selections.issue = this.selections.issueIdx = null;
-
-          this.notifyPath('selections.issueIdx');
-
-          this.$.issues._setSelectedItem(null);
-
-          this.params.sub_category = this.selections.subCategory;
-          this.$.dbQueryIA.generateRequest();
-        }
-      }
-
-      _issueChanged( issue ) {
-        if ( issue ) {
-          this.params.issue = this.selections.issue;
-          this.$.dbQueryIA.generateRequest();
-        }
-      }
-
-      _selectionChanged( selection ) {
-        let value;
-
-        if ( selection === 'application' ) {
-          value = this.selections.application ? selection.application : 'Select an application';
-        }
-        console.log(value);
-        return value;
-      }
-
-      ready() {
-        super.ready();
-        //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
-      }
-    }
-
-    window.customElements.define(MyKc.is, MyKc);
-  </script>
+      window.customElements.define( MyKc.is, MyKc );
+	</script>
 </dom-module>
