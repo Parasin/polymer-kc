@@ -1,15 +1,21 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/neon-animation/web-animations.html">
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
-
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-kc">
@@ -20,14 +26,44 @@
 				padding : 10px;
 			}
 
+			#download {
+				color : var(--google-blue-500);
+			}
+
+			#download.disabled {
+				color          : var(--google-grey-300);
+				pointer-events : none;
+			}
+
+			paper-dropdown-menu, .subInput {
+				@apply --layout-flex;
+				margin : 0 8px;
+			}
+
+			paper-tabs {
+				background-color                 : var(--google-blue-500);
+				color                            : var(--google-grey-100);
+				--paper-tabs-selection-bar-color : var(--paper-indigo-800);
+				--paper-tabs-selection-bar       : var(--paper-blue-a700);
+			}
+
+			#selections {
+				margin : 0 !important;
+			}
+
+			.textAreas {
+				margin           : 0;
+				background-color : var(--paper-grey-50);
+				color            : var(--google-grey-100);
+			}
+
 			ul {
 				list-style   : none;
 				padding-left : 0;
 			}
 
-			paper-dropdown-menu {
-				@apply --layout-flex;
-				margin : 0 8px;
+			@media ( min-width: 767px ){
+				paper-dialog { max-width: 30vw; }
 			}
 
 			@media ( max-width : 767px ) {
@@ -52,6 +88,52 @@
 				   last-response="{{response}}"
 				   on-error="_confirmError">
 		</iron-ajax>
+
+		<paper-icon-button id="submitBtn" icon="add-circle" on-tap="_openDialog"></paper-icon-button>
+
+		<paper-dialog id="submitDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+			<h2>Content Submission</h2>
+			<p>Please fill out the entire form in order to complete your request.</p>
+			<div id="submissionForm" class="layout container flex vertical">
+				<paper-dropdown-menu id="submitFormApp"
+									 label="Applications"
+									 placeholder="Select An Application"
+									 value="{{submissionSelections.application}}">
+					<paper-listbox slot="dropdown-content" selected="{{submissionSelections.applicationIdx}}">
+						<template is="dom-repeat" items="[[applications]]">
+							<paper-item value="[[item]]">[[item]]</paper-item>
+						</template>
+					</paper-listbox>
+				</paper-dropdown-menu>
+				<div class="subInput">
+					<paper-input label="Category" placeholder="Enter a category" required auto-validate></paper-input>
+				</div>
+				<div class="subInput">
+					<paper-input label="Sub category" placeholder="Enter a sub category" required auto-validate></paper-input>
+				</div>
+				<div class="subInput">
+					<paper-input label="Issue" placeholder="What's the issue?" required auto-validate></paper-input>
+				</div>
+				<div class="subInput">
+					<div class="textAreas">
+						<paper-textarea id="subScript"
+										label="Script"
+										value="{{subScript}}"
+										placeholder="Type or paste your script here">
+						</paper-textarea>
+					</div>
+				</div>
+				<div class="subInput">
+					<div class="textAreas">
+						<paper-textarea id="subWorkInstructions"
+										label="Work Instructions"
+										value="{{subWorkInstructions}}"
+										placeholder="Type or paste related work instructions">
+						</paper-textarea>
+					</div>
+				</div>
+			</div>
+		</paper-dialog>
 
 		<div id="selections" class="card layout container flex horizontal">
 			<paper-dropdown-menu id="applications"
@@ -102,12 +184,13 @@
 			</paper-dropdown-menu>
 		</div>
 
-		<paper-tabs selected="{{showWorkInstructions}}">
+		<paper-tabs selected="{{selected}}">
 			<paper-tab>Script</paper-tab>
 			<paper-tab>Work Instructions</paper-tab>
+			<paper-tab disabled="[[!docLink.length]]">Document Link</paper-tab>
 		</paper-tabs>
 
-		<iron-pages selected="{{showWorkInstructions}}">
+		<iron-pages selected="{{selected}}">
 			<div class="textAreas card">
 				<paper-textarea id="script"
 								label="Script"
@@ -123,6 +206,21 @@
 								placeholder="Work instructions will appear here">
 				</paper-textarea>
 			</div>
+			<div class="textAreas card">
+				<a id="download"
+				   class="disabled"
+				   href$="[[docLink]]"
+				   tabindex="-1"
+				   disabled$="[[!docLink.length]]"
+				   target="_blank">
+					<paper-icon-button disabled="[[!docLink.length]]"
+									   icon="cloud-download"
+									   slot="prefix"
+									   style="margin-right: 8px">
+					</paper-icon-button>
+					<span style="position: relative; top: 2px;">Download associated documentation</span>
+				</a>
+			</div>
 		</iron-pages>
 	</template>
 
@@ -134,31 +232,56 @@
 
         static get properties () {
           return {
-            applications  : Array,
-            categories    : Array,
-            body          : Object,
-            issues        : Array,
-            params        : {
+            applications : Array,
+
+            categories : Array,
+
+            body : Object,
+
+            docLink : String,
+
+            issues : Array,
+
+            params : {
               type  : Object,
               value : {
                 tools : true
               }
             },
-            response      : Array,
-            script        : String,
-            selections    : {
+
+            response : Array,
+
+            script : String,
+
+            selections : {
               type   : Object,
               notify : true,
               value  : function () {
                 return {};
               }
             },
-			showWorkInstructions: {
-              type: Number,
-			  value: 0
-			},
+
+            selected : {
+              type  : Number,
+              value : 0
+            },
+
+            selectedSubmission : {
+              type  : Number,
+              value : 0
+            },
+
             subCategories : Array,
-			workInstruction: String
+
+            submissionSelections : {
+              type   : Object,
+              notify : true,
+              value  : function () {
+                return {};
+              }
+            },
+
+            workInstruction : String
           };
         }
 
@@ -168,15 +291,23 @@
             '_categoryChanged(selections.category)',
             '_subCategoryChanged(selections.subCategory)',
             '_issueChanged(selections.issue)',
-            '_scriptChanged(script)'
+            '_scriptChanged(script)',
+            '_workInstChanged(workInstructions)'
           ];
         }
 
         _scriptChanged () {
-		  if ( this.script ) {
-		    this.params.flag = true;
+          if ( this.script ) {
+            this.params.flag = true;
             this.$.dbQueryIA.generateRequest();
-		  }
+          }
+        }
+
+        _workInstChanged () {
+          if ( this.workInstructions ) {
+            this.params.doc = true;
+            this.$.dbQueryIA.generateRequest();
+          }
         }
 
         handleResponse ( res ) {
@@ -193,6 +324,14 @@
             else if ( this.selections.application && this.selections.category && this.selections.subCategory && !this.selections.issue ) {
               this.issues = this.response.sort();
             }
+            else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue && this.params.flag && this.params.doc ) {
+              this.docLink = this.response[ 0 ];
+              if ( this.docLink.length ) {
+                this.$.download.classList.remove( 'disabled' );
+              } else {
+                this.$.download.classList.add( 'disabled' );
+              }
+            }
             else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue && this.params.flag ) {
               this.workInstructions = this.response[ 0 ];
             }
@@ -203,6 +342,7 @@
         }
 
         _confirmError ( err ) {
+          this.$.applications.disabled = true;
           console.error( err );
         }
 
@@ -217,6 +357,7 @@
             this.selections.category = this.selections.categoryIdx = null;
             this.selections.subCategory = this.selections.subCategoryIdx = null;
             this.selections.issue = this.selections.issueIdx = null;
+            this.docLink = null;
 
             this.notifyPath( 'selections.categoryIdx' );
             this.notifyPath( 'selections.subCategoryIdx' );
@@ -228,6 +369,8 @@
 
             this.$.subCategories.disabled = true;
             this.$.issues.disabled        = true;
+
+            this.$.download.classList.add( 'disabled' );
 
             this.params.table = this.params.tool = this.selections.application;
             this.$.dbQueryIA.generateRequest();
@@ -242,6 +385,7 @@
 
             this.selections.subCategory = this.selections.subCategoryIdx = null;
             this.selections.issue = this.selections.issueIdx = null;
+            this.docLink = null;
 
             this.notifyPath( 'selections.subCategoryIdx' );
             this.notifyPath( 'selections.issueIdx' );
@@ -250,7 +394,7 @@
             this.$.issues._setSelectedItem( null );
 
             this.$.issues.disabled = true;
-
+            this.$.download.classList.add( 'disabled' );
             this.params.category = this.selections.category;
             this.$.dbQueryIA.generateRequest();
           }
@@ -262,11 +406,12 @@
             delete this.params.flag;
 
             this.selections.issue = this.selections.issueIdx = null;
+            this.docLink = null;
 
             this.notifyPath( 'selections.issueIdx' );
 
             this.$.issues._setSelectedItem( null );
-
+            this.$.download.classList.add( 'disabled' );
             this.params.sub_category = this.selections.subCategory;
             this.$.dbQueryIA.generateRequest();
           }
@@ -276,6 +421,8 @@
           if ( issue ) {
             delete this.params.flag;
             this.params.issue = this.selections.issue;
+            this.docLink      = null;
+            this.$.download.classList.add( 'disabled' );
             this.$.dbQueryIA.generateRequest();
           }
         }
@@ -287,6 +434,12 @@
             value = this.selections.application ? selection.application : 'Select an application';
           }
           return value;
+        }
+
+        _openDialog () {
+          if ( !this.$.submitDialog.opened ) {
+            this.$.submitDialog.open();
+          }
         }
 
         ready () {
