@@ -131,7 +131,7 @@
 					</div>
 				</div>
 				<div class="layout horizontal end-justified">
-					<paper-button class="cancel" raised>
+					<paper-button class="cancel" raised on-tap="_closeDialog">
 						<iron-icon icon="clear"></iron-icon>
 						Cancel
 					</paper-button>
@@ -155,13 +155,9 @@
           return {
             applications : Array,
 
-            categories : Array,
-
             body : Object,
 
             docLink : String,
-
-            issues : Array,
 
 			opened : {
               type: Boolean,
@@ -175,29 +171,12 @@
               }
             },
 
-            response : Array,
-
             script : String,
-
-            selections : {
-              type   : Object,
-              notify : true,
-              value  : function () {
-                return {};
-              }
-            },
-
-            selected : {
-              type  : Number,
-              value : 0
-            },
 
             selectedSubmission : {
               type  : Number,
               value : 0
             },
-
-            subCategories : Array,
 
             submissionSelections : {
               type   : Object,
@@ -217,49 +196,8 @@
           ];
         }
 
-        _scriptChanged () {
-          if ( this.script ) {
-            this.params.flag = true;
-            this.$.dbQueryIA.generateRequest();
-          }
-        }
-
-        _workInstChanged () {
-          if ( this.workInstructions ) {
-            this.params.doc = true;
-            this.$.dbQueryIA.generateRequest();
-          }
-        }
-
         handleResponse ( res ) {
-          if ( this.response ) {
-            if ( !this.selections.application ) {
-              this.applications = this.response.sort();
-            }
-            else if ( this.selections.application && !( this.selections.category || this.selections.subCategory || this.selections.issue ) ) {
-              this.categories = this.response.sort();
-            }
-            else if ( this.selections.application && this.selections.category && !( this.selections.subCategory || this.selections.issue ) ) {
-              this.subCategories = this.response.sort();
-            }
-            else if ( this.selections.application && this.selections.category && this.selections.subCategory && !this.selections.issue ) {
-              this.issues = this.response.sort();
-            }
-            else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue && this.params.flag && this.params.doc ) {
-              this.docLink = this.response[ 0 ];
-              if ( this.docLink.length ) {
-                this.$.download.classList.remove( 'disabled' );
-              } else {
-                this.$.download.classList.add( 'disabled' );
-              }
-            }
-            else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue && this.params.flag ) {
-              this.workInstructions = this.response[ 0 ];
-            }
-            else if ( this.selections.application && this.selections.category && this.selections.subCategory && this.selections.issue ) {
-              this.script = this.response[ 0 ];
-            }
-          }
+
         }
 
         _confirmError ( err ) {
@@ -268,84 +206,7 @@
         }
 
         _applicationChanged ( application ) {
-          if ( application ) {
-            delete this.params.tools;
-            delete this.params.category;
-            delete this.params.sub_category;
-            delete this.params.issue;
-            delete this.params.flag;
 
-            this.selections.category = this.selections.categoryIdx = null;
-            this.selections.subCategory = this.selections.subCategoryIdx = null;
-            this.selections.issue = this.selections.issueIdx = null;
-            this.docLink = null;
-
-            this.notifyPath( 'selections.categoryIdx' );
-            this.notifyPath( 'selections.subCategoryIdx' );
-            this.notifyPath( 'selections.issueIdx' );
-
-            this.$.categories._setSelectedItem( null );
-            this.$.subCategories._setSelectedItem( null );
-            this.$.issues._setSelectedItem( null );
-
-            this.$.subCategories.disabled = true;
-            this.$.issues.disabled        = true;
-
-            this.$.download.classList.add( 'disabled' );
-
-            this.params.table = this.params.tool = this.selections.application;
-            this.$.dbQueryIA.generateRequest();
-          }
-        }
-
-        _categoryChanged ( category ) {
-          if ( category ) {
-            delete this.params.sub_category;
-            delete this.params.issue;
-            delete this.params.flag;
-
-            this.selections.subCategory = this.selections.subCategoryIdx = null;
-            this.selections.issue = this.selections.issueIdx = null;
-            this.docLink = null;
-
-            this.notifyPath( 'selections.subCategoryIdx' );
-            this.notifyPath( 'selections.issueIdx' );
-
-            this.$.subCategories._setSelectedItem( null );
-            this.$.issues._setSelectedItem( null );
-
-            this.$.issues.disabled = true;
-            this.$.download.classList.add( 'disabled' );
-            this.params.category = this.selections.category;
-            this.$.dbQueryIA.generateRequest();
-          }
-        }
-
-        _subCategoryChanged ( subCategory ) {
-          if ( subCategory ) {
-            delete this.params.issue;
-            delete this.params.flag;
-
-            this.selections.issue = this.selections.issueIdx = null;
-            this.docLink = null;
-
-            this.notifyPath( 'selections.issueIdx' );
-
-            this.$.issues._setSelectedItem( null );
-            this.$.download.classList.add( 'disabled' );
-            this.params.sub_category = this.selections.subCategory;
-            this.$.dbQueryIA.generateRequest();
-          }
-        }
-
-        _issueChanged ( issue ) {
-          if ( issue ) {
-            delete this.params.flag;
-            this.params.issue = this.selections.issue;
-            this.docLink      = null;
-            this.$.download.classList.add( 'disabled' );
-            this.$.dbQueryIA.generateRequest();
-          }
         }
 
         _selectionChanged ( selection ) {
@@ -357,6 +218,11 @@
           return value;
         }
 
+        _closeDialog ( ) {
+          this.$.submitDialog.cancel();
+          this.opened = false;
+		}
+
         _openDialog () {
           if ( this.opened && !this.$.submitDialog.opened ) {
             this.$.submitDialog.open();
@@ -365,7 +231,6 @@
 
         ready () {
           super.ready();
-          //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
         }
       }
 
