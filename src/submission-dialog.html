@@ -6,6 +6,7 @@
 <link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
@@ -48,15 +49,14 @@
 				color                            : var(--google-grey-100);
 				--paper-tabs-selection-bar-color : var(--paper-indigo-800);
 				--paper-tabs-selection-bar       : var(--paper-blue-a700);
-				--paper-tabs-selection-bar: {
-					border : 2px solid var(--paper-indigo-800);
-				}
+												 --paper-tabs-selection-bar: {
+													 border : 2px solid var(--paper-indigo-800);
+												 }
 			}
 
 			.textAreas {
-				margin           : 0;
-				background-color : var(--paper-grey-50);
-				color            : var(--google-grey-100);
+				margin : 0;
+				color  : var(--google-grey-100);
 			}
 
 			@media ( min-width : 767px ) {
@@ -88,59 +88,86 @@
 				   on-error="_confirmError">
 		</iron-ajax>
 
-		<paper-dialog id="submitDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" opened="{{opened}}" with-backdrop>
-			<h2>Content Submission</h2>
-			<p>Please fill out the entire form in order to complete your request.</p>
-			<div id="submissionForm" class="layout container flex vertical">
-				<paper-dropdown-menu id="submitFormApp"
-									 label="Applications"
-									 placeholder="Select An Application"
-									 value="{{submissionSelections.application}}">
-					<paper-listbox slot="dropdown-content" selected="{{submissionSelections.applicationIdx}}">
-						<template is="dom-repeat" items="[[applications]]">
-							<paper-item value="[[item]]">[[item]]</paper-item>
-						</template>
-					</paper-listbox>
-				</paper-dropdown-menu>
-				<div class="subInput">
-					<paper-input label="Category" placeholder="Enter a category" required auto-validate></paper-input>
-				</div>
-				<div class="subInput">
-					<paper-input label="Sub category" placeholder="Enter a sub category" required
-								 auto-validate></paper-input>
-				</div>
-				<div class="subInput">
-					<paper-input label="Issue" placeholder="What's the issue?" required auto-validate></paper-input>
-				</div>
-				<div class="subInput">
-					<div class="textAreas">
-						<paper-textarea id="subScript"
-										label="Script"
-										value="{{subScript}}"
-										placeholder="Type or paste your script here">
-						</paper-textarea>
+		<paper-dialog id="submitDialog"
+					  entry-animation="scale-up-animation"
+					  exit-animation="fade-out-animation"
+					  opened="{{opened}}" with-backdrop>
+			<div>
+				<h2>Content Submission</h2>
+				<p>Please fill out the entire form in order to complete your request.</p>
+			</div>
+			<paper-dialog-scrollable>
+				<div id="submissionForm" class="layout container flex vertical">
+					<paper-dropdown-menu id="application"
+										 label="Applications"
+										 placeholder="Select An Application"
+										 value="{{submissionSelections.application}}">
+						<paper-listbox slot="dropdown-content" selected="{{submissionSelections.applicationIdx}}">
+							<template is="dom-repeat" items="[[applications]]">
+								<paper-item value="[[item]]">[[item]]</paper-item>
+							</template>
+						</paper-listbox>
+					</paper-dropdown-menu>
+					<div class="subInput">
+						<paper-input id="category"
+									 label="Category"
+									 placeholder="Enter a category"
+									 required
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="subCategory"
+									 label="Sub category"
+									 placeholder="Enter a sub category"
+									 required
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="issue"
+									 label="Issue"
+									 placeholder="What's the issue?"
+									 required
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<div class="textAreas">
+							<paper-textarea id="script"
+											label="Script"
+											value="{{subScript}}"
+											placeholder="Type or paste your script here">
+							</paper-textarea>
+						</div>
+					</div>
+					<div class="subInput">
+						<div class="textAreas">
+							<paper-textarea id="workInstructions"
+											label="Work Instructions"
+											value="{{subWorkInstructions}}"
+											placeholder="Type or paste related work instructions">
+							</paper-textarea>
+						</div>
+					</div>
+					<div class="subInput">
+						<paper-input id="docLink"
+									 type="url"
+									 label="Document URL"
+									 placeholder="https://www.someUrl.com">
+						</paper-input>
 					</div>
 				</div>
-				<div class="subInput">
-					<div class="textAreas">
-						<paper-textarea id="subWorkInstructions"
-										label="Work Instructions"
-										value="{{subWorkInstructions}}"
-										placeholder="Type or paste related work instructions">
-						</paper-textarea>
-					</div>
-				</div>
-				<div class="layout horizontal end-justified">
-					<paper-button class="cancel" raised on-tap="_closeDialog">
-						<iron-icon icon="clear"></iron-icon>
-						Cancel
-					</paper-button>
-					<paper-button class="submit" raised>
-						<iron-icon icon="check"></iron-icon>
-						Submit
-					</paper-button>
-				</div>
-
+			</paper-dialog-scrollable>
+			<div class="layout horizontal end-justified">
+				<paper-button class="cancel" raised on-tap="_closeDialog">
+					<iron-icon icon="clear"></iron-icon>
+					Cancel
+				</paper-button>
+				<paper-button class="submit" raised>
+					<iron-icon icon="check"></iron-icon>
+					Submit
+				</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
@@ -159,12 +186,12 @@
 
             docLink : String,
 
-			opened : {
-              type: Boolean,
-			  value: false
-			},
+            opened : {
+              type  : Boolean,
+              value : false
+            },
 
-			params : {
+            params : {
               type  : Object,
               value : {
                 tools : true
@@ -205,10 +232,6 @@
           console.error( err );
         }
 
-        _applicationChanged ( application ) {
-
-        }
-
         _selectionChanged ( selection ) {
           let value;
 
@@ -218,15 +241,26 @@
           return value;
         }
 
-        _closeDialog ( ) {
+        _closeDialog () {
           this.$.submitDialog.cancel();
+          this._resetForm();
           this.opened = false;
-		}
+        }
 
         _openDialog () {
           if ( this.opened && !this.$.submitDialog.opened ) {
             this.$.submitDialog.open();
           }
+        }
+
+        _resetForm () {
+          this.$.application.value      = undefined;
+          this.$.category.value         = undefined;
+          this.$.subCategory.value      = undefined;
+          this.$.issue.value            = undefined;
+          this.$.script.value           = undefined;
+          this.$.workInstructions.value = undefined;
+          this.$.docLink.value          = undefined;
         }
 
         ready () {
