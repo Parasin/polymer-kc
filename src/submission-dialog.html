@@ -1,7 +1,6 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
@@ -14,27 +13,15 @@
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
-<link rel="import" href="submission-dialog.html">
 
-<dom-module id="my-kc">
+<dom-module id="sub-dialog">
 	<template>
 		<style include="shared-styles iron-flex iron-flex-alignment">
 			:host {
 				display : block;
 				padding : 10px;
-			}
-
-			#download {
-				color : var(--google-blue-500);
-			}
-
-			#download.disabled {
-				color          : var(--google-grey-300);
-				pointer-events : none;
 			}
 
 			paper-button.cancel {
@@ -61,24 +48,15 @@
 				color                            : var(--google-grey-100);
 				--paper-tabs-selection-bar-color : var(--paper-indigo-800);
 				--paper-tabs-selection-bar       : var(--paper-blue-a700);
-												 --paper-tabs-selection-bar: {
-													 border : 2px solid var(--paper-indigo-800);
-												 }
-			}
-
-			#selections {
-				margin : 0 !important;
+				--paper-tabs-selection-bar: {
+					border : 2px solid var(--paper-indigo-800);
+				}
 			}
 
 			.textAreas {
 				margin           : 0;
 				background-color : var(--paper-grey-50);
 				color            : var(--google-grey-100);
-			}
-
-			ul {
-				list-style   : none;
-				padding-left : 0;
 			}
 
 			@media ( min-width : 767px ) {
@@ -92,7 +70,7 @@
 
 				}
 
-				#selections, .textAreas {
+				.textAreas {
 					@apply --layout-vertical;
 				}
 
@@ -110,8 +88,7 @@
 				   on-error="_confirmError">
 		</iron-ajax>
 
-		<paper-icon-button id="submitBtn" icon="add-circle" on-tap="_openDialog"></paper-icon-button>
-		<!--<paper-dialog id="submitDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+		<paper-dialog id="submitDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" opened="{{opened}}" with-backdrop>
 			<h2>Content Submission</h2>
 			<p>Please fill out the entire form in order to complete your request.</p>
 			<div id="submissionForm" class="layout container flex vertical">
@@ -129,7 +106,8 @@
 					<paper-input label="Category" placeholder="Enter a category" required auto-validate></paper-input>
 				</div>
 				<div class="subInput">
-					<paper-input label="Sub category" placeholder="Enter a sub category" required auto-validate></paper-input>
+					<paper-input label="Sub category" placeholder="Enter a sub category" required
+								 auto-validate></paper-input>
 				</div>
 				<div class="subInput">
 					<paper-input label="Issue" placeholder="What's the issue?" required auto-validate></paper-input>
@@ -153,106 +131,24 @@
 					</div>
 				</div>
 				<div class="layout horizontal end-justified">
-					<paper-button class="cancel" raised><iron-icon icon="clear"></iron-icon>Cancel</paper-button>
-					<paper-button class="submit" raised><iron-icon icon="check"></iron-icon>Submit</paper-button>
+					<paper-button class="cancel" raised>
+						<iron-icon icon="clear"></iron-icon>
+						Cancel
+					</paper-button>
+					<paper-button class="submit" raised>
+						<iron-icon icon="check"></iron-icon>
+						Submit
+					</paper-button>
 				</div>
 
 			</div>
-		</paper-dialog>-->
-
-		<div id="selections" class="card layout container flex horizontal">
-			<paper-dropdown-menu id="applications"
-								 label="Applications"
-								 placeholder="Select An Application"
-								 value="{{selections.application}}">
-				<paper-listbox slot="dropdown-content" selected="{{selections.applicationIdx}}">
-					<template is="dom-repeat" items="[[applications]]">
-						<paper-item value="[[item]]">[[item]]</paper-item>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
-
-			<paper-dropdown-menu disabled$="[[!selections.application]]"
-								 id="categories"
-								 label="Categories"
-								 placeholder="Select A Category"
-								 value="{{selections.category}}">
-				<paper-listbox slot="dropdown-content" selected="{{selections.categoryIdx}}">
-					<template is="dom-repeat" items="[[categories]]">
-						<paper-item value="[[item]]">[[item]]</paper-item>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
-
-			<paper-dropdown-menu disabled$="[[!selections.category]]"
-								 id="subCategories"
-								 label="Subcategories"
-								 placeholder="Select A Subcategory"
-								 value="{{selections.subCategory}}">
-				<paper-listbox slot="dropdown-content" selected="{{selections.subCategoryIdx}}">
-					<template is="dom-repeat" items="[[subCategories]]">
-						<paper-item value="[[item]]">[[item]]</paper-item>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
-
-			<paper-dropdown-menu disabled$="[[!selections.subCategory]]"
-								 id="issues"
-								 label="Issues"
-								 placeholder="Select An Issue"
-								 value="{{selections.issue}}">
-				<paper-listbox slot="dropdown-content" selected="{{selections.issueIdx}}">
-					<template is="dom-repeat" items="[[issues]]">
-						<paper-item value="[[item]]">[[item]]</paper-item>
-					</template>
-				</paper-listbox>
-			</paper-dropdown-menu>
-		</div>
-
-		<paper-tabs selected="{{selected}}">
-			<paper-tab>Script</paper-tab>
-			<paper-tab>Work Instructions</paper-tab>
-			<paper-tab disabled="[[!docLink.length]]">Document Link</paper-tab>
-		</paper-tabs>
-
-		<iron-pages selected="{{selected}}">
-			<div class="textAreas card">
-				<paper-textarea id="script"
-								label="Script"
-								value="[[script]]"
-								placeholder="Script will appear here">
-				</paper-textarea>
-			</div>
-			<div class="textAreas card">
-				<paper-textarea id="workInstructions"
-								label="Work Instructions"
-								value="[[workInstructions]]"
-								readonly="true"
-								placeholder="Work instructions will appear here">
-				</paper-textarea>
-			</div>
-			<div class="textAreas card">
-				<a id="download"
-				   class="disabled"
-				   href$="[[docLink]]"
-				   tabindex="-1"
-				   disabled$="[[!docLink.length]]"
-				   target="_blank">
-					<paper-icon-button disabled="[[!docLink.length]]"
-									   icon="cloud-download"
-									   slot="prefix"
-									   style="margin-right: 8px">
-					</paper-icon-button>
-					<span style="position: relative; top: 2px;">Download associated documentation</span>
-				</a>
-			</div>
-		</iron-pages>
+		</paper-dialog>
 	</template>
 
 	<script>
-      class MyKc extends Polymer.Element {
+      class SubmissionDialog extends Polymer.Element {
         static get is () {
-          return 'my-kc';
+          return 'sub-dialog';
         }
 
         static get properties () {
@@ -267,7 +163,12 @@
 
             issues : Array,
 
-            params : {
+			opened : {
+              type: Boolean,
+			  value: false
+			},
+
+			params : {
               type  : Object,
               value : {
                 tools : true
@@ -312,12 +213,7 @@
 
         static get observers () {
           return [
-            '_applicationChanged(selections.application)',
-            '_categoryChanged(selections.category)',
-            '_subCategoryChanged(selections.subCategory)',
-            '_issueChanged(selections.issue)',
-            '_scriptChanged(script)',
-            '_workInstChanged(workInstructions)'
+            '_openDialog(opened)'
           ];
         }
 
@@ -462,22 +358,17 @@
         }
 
         _openDialog () {
-          if ( !this./*$.submitDialog.*/opened ) {
-            this.dispatchEvent( new CustomEvent( 'toggle-sub-dialog', {
-              bubbles  : true,
-              composed : true,
-              detail   : { opened : true }
-            } ) );
+          if ( this.opened && !this.$.submitDialog.opened ) {
+            this.$.submitDialog.open();
           }
         }
 
         ready () {
           super.ready();
-          this.opened = false;
           //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
         }
       }
 
-      window.customElements.define( MyKc.is, MyKc );
+      window.customElements.define( SubmissionDialog.is, SubmissionDialog );
 	</script>
 </dom-module>
