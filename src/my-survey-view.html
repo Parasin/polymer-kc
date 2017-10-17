@@ -1,0 +1,202 @@
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="my-survey-grid.html">
+
+<dom-module id="my-survey-view">
+	<template>
+		<style include="shared-styles iron-flex iron-flex-alignment">
+			:host {
+				display : block;
+				padding : 10px;
+			}
+
+			paper-button.cancel {
+				background-color : var(--paper-red-400);
+				color            : white;
+			}
+
+			paper-button.submit {
+				background-color : var(--paper-green-400);
+				color            : white;
+			}
+
+			paper-dialog {
+				z-index : 1000;
+			}
+
+			paper-dropdown-menu, .subInput {
+				@apply --layout-flex;
+				margin : 0 8px;
+			}
+
+			#surveyContainer {
+
+			}
+
+			.surveyInput {
+				margin : 0 8px;
+			}
+
+			ul {
+				list-style   : none;
+				padding-left : 0;
+			}
+
+			@media ( min-width : 767px ) {
+				paper-dialog {
+					max-width : 30vw;
+				}
+			}
+
+			@media ( max-width : 767px ) {
+				:host {
+
+				}
+
+				#surveyContainer, .textAreas {
+					@apply --layout-vertical;
+				}
+
+			}
+		</style>
+
+		<!--<iron-ajax id="dbQueryIA"
+				   auto
+				   url="http://138.85.123.229/php/dbquery.php"
+				   content-type="application/x-www-form-urlencoded"
+				   method="POST"
+				   body="[[params]]"
+				   on-response="handleResponse"
+				   last-response="{{response}}"
+				   on-error="_confirmError">
+		</iron-ajax>-->
+
+		<!--<iron-ajax auto url="https://demo.vaadin.com/demo-data/1.0/people?count=200"
+				   handle-as="json"
+				   last-response="{{users}}">
+		</iron-ajax>-->
+
+		<div class="card" style="margin: 0 !important;">
+
+			<div id="surveyContainer" class="container layout vertical around-justified">
+
+				<h4>Add Survey</h4>
+
+				<p style="margin: 0;">
+					<small>To send out a survey, fill out the form below. All fields are required.</small>
+				</p>
+
+				<paper-input class="surveyInput"
+							 required
+							 auto-validate
+							 value="{{newUser.firstName}}"
+							 placeholder="First name">
+				</paper-input>
+
+				<paper-input class="surveyInput"
+							 required
+							 auto-validate
+							 value="{{newUser.lastName}}"
+							 placeholder="Last name">
+				</paper-input>
+
+				<paper-input class="surveyInput"
+							 required
+							 auto-validate
+							 value="{{newUser.email}}"
+							 placeholder="Email"
+							 type="email">
+				</paper-input>
+
+				<paper-input class="surveyInput"
+							 required
+							 auto-validate
+							 value="{{newUser.app}}"
+							 placeholder="Application">
+				</paper-input>
+
+				<paper-input class="surveyInput"
+							 required
+							 auto-validate
+							 value="{{newUser.type}}"
+							 placeholder="Request Type">
+				</paper-input>
+
+				<paper-input class="surveyInput"
+							 required
+							 auto-validate
+							 value="{{newUser.req}}"
+							 placeholder="REQ Number">
+				</paper-input>
+
+				<paper-button class="surveyInput submit" raised on-tap="_add" style="margin: 12px">
+					<iron-icon icon="add-circle"></iron-icon>
+					Add survey
+				</paper-button>
+
+			</div>
+
+			<survey-grid items="{{users}}"></survey-grid>
+
+		</div>
+
+	</template>
+
+	<script>
+      class Survey extends Polymer.Element {
+        static get is () {
+          return 'my-survey-view';
+        }
+
+        static get properties () {
+          return {
+            newUser : {
+              type  : Object,
+              value : function () {
+                return {};
+              }
+            }
+          };
+        }
+
+        static get observers () {
+          return [
+            '_applicationChanged(selections.application)'
+          ];
+        }
+
+        _add () {
+          this.push( 'users', this.newUser );
+          this.newUser = {};
+        }
+
+        _confirmError ( err ) {
+          this.$.applications.disabled = true;
+          console.error( err );
+        }
+
+        handleResponse ( res ) {
+
+        }
+
+        ready () {
+          super.ready();
+          this.users = [];
+          //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
+        }
+      }
+
+      window.customElements.define( Survey.is, Survey );
+	</script>
+</dom-module>

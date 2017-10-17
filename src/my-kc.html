@@ -110,55 +110,6 @@
 		</iron-ajax>
 
 		<paper-icon-button id="submitBtn" icon="add-circle" on-tap="_openDialog"></paper-icon-button>
-		<!--<paper-dialog id="submitDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-			<h2>Content Submission</h2>
-			<p>Please fill out the entire form in order to complete your request.</p>
-			<div id="submissionForm" class="layout container flex vertical">
-				<paper-dropdown-menu id="submitFormApp"
-									 label="Applications"
-									 placeholder="Select An Application"
-									 value="{{submissionSelections.application}}">
-					<paper-listbox slot="dropdown-content" selected="{{submissionSelections.applicationIdx}}">
-						<template is="dom-repeat" items="[[applications]]">
-							<paper-item value="[[item]]">[[item]]</paper-item>
-						</template>
-					</paper-listbox>
-				</paper-dropdown-menu>
-				<div class="subInput">
-					<paper-input label="Category" placeholder="Enter a category" required auto-validate></paper-input>
-				</div>
-				<div class="subInput">
-					<paper-input label="Sub category" placeholder="Enter a sub category" required auto-validate></paper-input>
-				</div>
-				<div class="subInput">
-					<paper-input label="Issue" placeholder="What's the issue?" required auto-validate></paper-input>
-				</div>
-				<div class="subInput">
-					<div class="textAreas">
-						<paper-textarea id="subScript"
-										label="Script"
-										value="{{subScript}}"
-										placeholder="Type or paste your script here">
-						</paper-textarea>
-					</div>
-				</div>
-				<div class="subInput">
-					<div class="textAreas">
-						<paper-textarea id="subWorkInstructions"
-										label="Work Instructions"
-										value="{{subWorkInstructions}}"
-										placeholder="Type or paste related work instructions">
-						</paper-textarea>
-					</div>
-				</div>
-				<div class="layout horizontal end-justified">
-					<paper-button class="cancel" raised><iron-icon icon="clear"></iron-icon>Cancel</paper-button>
-					<paper-button class="submit" raised><iron-icon icon="check"></iron-icon>Submit</paper-button>
-				</div>
-
-			</div>
-		</paper-dialog>-->
-
 		<div id="selections" class="card layout container flex horizontal">
 			<paper-dropdown-menu id="applications"
 								 label="Applications"
