@@ -133,6 +133,7 @@
 					</paper-icon-button>
 					<paper-tooltip for="addRowBtn" position="" offset="2">Add survey</paper-tooltip>
 				</template>
+				<template></template>
 			</vaadin-grid-column>
 
 			<vaadin-grid-column width="58px" flex-grow="0">
@@ -241,7 +242,7 @@
 
         _add () {
           this.push( 'items', {} );
-          this.newUser = {};
+          this.$.grid.clearCache();
         }
 
         _confirmError ( err ) {
