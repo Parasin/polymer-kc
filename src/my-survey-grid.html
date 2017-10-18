@@ -35,6 +35,12 @@
 				color            : white;
 			}
 
+			paper-icon-button.disabled, paper-icon-button:disabled {
+				--paper-icon-button-disabled: {
+					background-color : var(--google-grey-500);
+				}
+			}
+
 			paper-dialog {
 				z-index : 1000;
 			}
@@ -98,24 +104,22 @@
 				   on-error="_confirmError">
 		</iron-ajax>-->
 
+		<div class="container flex horizontal" style="margin-bottom: 0">
+			<div class="flex">
+				<p>
+				<h3>Surveys</h3>
+				<p style="margin: 0;">
+					<small>To send out a survey, fill out the form below. All fields are required.</small>
+				</p>
+				</p>
+			</div>
+		</div>
+
 		<vaadin-grid id="grid" aria-label="Basic Binding Example"
 					 items="[[items]]"
 					 column-reordering-allowed
 					 multi-sort
 					 active-item="{{activeItem}}">
-
-			<vaadin-grid-column-group>
-				<template class="header">
-					<div class="container flex horizontal">
-						<div class="flex">
-							<p><h3>Surveys</h3>
-								<p style="margin: 0;">
-									<small>To send out a survey, fill out the form below. All fields are required.</small>
-								</p>
-							</p>
-						</div>
-					</div>
-				</template>
 
 				<vaadin-grid-column width="60px" flex-grow="0" frozen>
 					<template class="header" id="addRowBtn">
@@ -130,6 +134,7 @@
 				<vaadin-grid-column width="50px" flex-grow="0">
 					<template class="header">
 						<paper-icon-button id="removeAll"
+										   disabled="[[!items.length]]"
 										   icon="clear"
 										   class="cancel"
 										   on-tap="_removeAll"></paper-icon-button>
@@ -204,8 +209,6 @@
 					</template>
 				</vaadin-grid-column>
 
-			</vaadin-grid-column-group>
-
 		</vaadin-grid>
 
 	</template>
@@ -260,6 +263,11 @@
         _remove ( e ) {
           let index = this.items.indexOf( e.model.item );
           this.items.splice( index, 1 );
+
+          if ( !this.items.length ) {
+            this.items = [];
+
+		  }
 
           this.$.grid.clearCache();
         }
