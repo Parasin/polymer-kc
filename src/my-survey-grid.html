@@ -73,6 +73,11 @@
 									background-size : 1px 100%;
 									background      : var(--google-grey-100) no-repeat 100% 0%;
 								};
+
+								--vaadin-grid-cell: {
+									border-right : 1px solid #d4d4d4;
+									box-sizing   : border-box;
+								};
 			}
 
 			@media ( min-width : 767px ) {
@@ -117,97 +122,91 @@
 
 		<vaadin-grid id="grid" aria-label="Basic Binding Example"
 					 items="[[items]]"
-					 column-reordering-allowed
 					 multi-sort
 					 active-item="{{activeItem}}">
 
-				<vaadin-grid-column width="60px" flex-grow="0" frozen>
-					<template class="header" id="addRowBtn">
-						<paper-icon-button icon="add-circle"
-										   class="submit"
-										   on-tap="_add">
-						</paper-icon-button>
-						<paper-tooltip for="addRowBtn" position="" offset="2">Add survey</paper-tooltip>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column width="58px" flex-grow="0" frozen>
+				<template class="header" id="addRowBtn">
+					<paper-icon-button icon="add-circle"
+									   class="submit"
+									   on-tap="_add">
+					</paper-icon-button>
+					<paper-tooltip for="addRowBtn" position="" offset="2">Add survey</paper-tooltip>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column width="50px" flex-grow="0">
-					<template class="header">
-						<paper-icon-button id="removeAll"
-										   disabled="[[!items.length]]"
-										   icon="clear"
-										   class="cancel"
-										   on-tap="_removeAll"></paper-icon-button>
-						<paper-tooltip for="removeAll" position="right">Remove all surveys</paper-tooltip>
-					</template>
-					<template>
-						<paper-icon-button id="remove"
-										   icon="clear"
-										   class="cancel"
-										   on-tap="_remove">
-						</paper-icon-button>
-						<paper-tooltip for="remove" position="right">Remove survey</paper-tooltip>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column width="58px" flex-grow="0" frozen>
+				<template class="header">
+					<paper-icon-button id="removeAll"
+									   disabled="[[!items.length]]"
+									   icon="clear"
+									   class="cancel"
+									   on-tap="_removeAll"></paper-icon-button>
+					<paper-tooltip for="removeAll" position="right">Remove all surveys</paper-tooltip>
+				</template>
+				<template>
+					<paper-icon-button id="remove"
+									   icon="clear"
+									   class="cancel"
+									   on-tap="_remove">
+					</paper-icon-button>
+					<paper-tooltip for="remove" position="right">Remove survey</paper-tooltip>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column width="50px" flex-grow="0">
-					<template class="header">#</template>
-					<template>[[index]]</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column resizable>
+				<template class="header">
+					<vaadin-grid-sorter path="firstName">First Name</vaadin-grid-sorter>
+				</template>
+				<template>
+					<paper-input value="{{item.firstName::input}}"></paper-input>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column resizable>
-					<template class="header">
-						<vaadin-grid-sorter path="firstName">First Name</vaadin-grid-sorter>
-					</template>
-					<template>
-						<paper-input value="{{item.firstName::input}}"></paper-input>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column resizable>
+				<template class="header">
+					<vaadin-grid-sorter path="lastName">Last Name</vaadin-grid-sorter>
+				</template>
+				<template>
+					<paper-input value="{{item.lastName::input}}"></paper-input>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column resizable>
-					<template class="header">
-						<vaadin-grid-sorter path="lastName">Last Name</vaadin-grid-sorter>
-					</template>
-					<template>
-						<paper-input value="{{item.lastName::input}}"></paper-input>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column resizable>
+				<template class="header">
+					<vaadin-grid-sorter path="email">Email</vaadin-grid-sorter>
+				</template>
+				<template>
+					<paper-input value="{{item.email::input}}"></paper-input>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column resizable>
-					<template class="header">
-						<vaadin-grid-sorter path="email">Email</vaadin-grid-sorter>
-					</template>
-					<template>
-						<paper-input value="{{item.email::input}}"></paper-input>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column resizable>
+				<template class="header">
+					<vaadin-grid-sorter path="app">Application</vaadin-grid-sorter>
+				</template>
+				<template>
+					<paper-input value="{{item.app::input}}"></paper-input>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column resizable>
-					<template class="header">
-						<vaadin-grid-sorter path="app">Application</vaadin-grid-sorter>
-					</template>
-					<template>
-						<paper-input value="{{item.app::input}}"></paper-input>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column resizable>
+				<template class="header">
+					<vaadin-grid-sorter path="type">Request Type</vaadin-grid-sorter>
+				</template>
+				<template>
+					<paper-input value="{{item.type::input}}"></paper-input>
+				</template>
+			</vaadin-grid-column>
 
-				<vaadin-grid-column resizable>
-					<template class="header">
-						<vaadin-grid-sorter path="type">Request Type</vaadin-grid-sorter>
-					</template>
-					<template>
-						<paper-input value="{{item.type::input}}"></paper-input>
-					</template>
-				</vaadin-grid-column>
-
-				<vaadin-grid-column resizeable>
-					<template class="header">
-						<vaadin-grid-sorter path="req">REQ #</vaadin-grid-sorter>
-					</template>
-					<template>
-						<paper-input value="{{item.req::input}}"></paper-input>
-					</template>
-				</vaadin-grid-column>
+			<vaadin-grid-column resizeable>
+				<template class="header">
+					<vaadin-grid-sorter path="req">REQ #</vaadin-grid-sorter>
+				</template>
+				<template>
+					<paper-input value="{{item.req::input}}"></paper-input>
+				</template>
+			</vaadin-grid-column>
 
 		</vaadin-grid>
 
@@ -267,7 +266,7 @@
           if ( !this.items.length ) {
             this.items = [];
 
-		  }
+          }
 
           this.$.grid.clearCache();
         }
