@@ -64,7 +64,7 @@
 
 				}
 
-				#surveyContainer, .textAreas {
+				#surveyViewContainer, #surveyContainer, .textAreas {
 					@apply --layout-vertical;
 				}
 
@@ -89,65 +89,9 @@
 
 		<div class="card" style="margin: 0 !important;">
 
-			<div id="surveyContainer" class="container layout vertical around-justified">
-
-				<h4>Add Survey</h4>
-
-				<p style="margin: 0;">
-					<small>To send out a survey, fill out the form below. All fields are required.</small>
-				</p>
-
-				<paper-input class="surveyInput"
-							 required
-							 auto-validate
-							 value="{{newUser.firstName}}"
-							 placeholder="First name">
-				</paper-input>
-
-				<paper-input class="surveyInput"
-							 required
-							 auto-validate
-							 value="{{newUser.lastName}}"
-							 placeholder="Last name">
-				</paper-input>
-
-				<paper-input class="surveyInput"
-							 required
-							 auto-validate
-							 value="{{newUser.email}}"
-							 placeholder="Email"
-							 type="email">
-				</paper-input>
-
-				<paper-input class="surveyInput"
-							 required
-							 auto-validate
-							 value="{{newUser.app}}"
-							 placeholder="Application">
-				</paper-input>
-
-				<paper-input class="surveyInput"
-							 required
-							 auto-validate
-							 value="{{newUser.type}}"
-							 placeholder="Request Type">
-				</paper-input>
-
-				<paper-input class="surveyInput"
-							 required
-							 auto-validate
-							 value="{{newUser.req}}"
-							 placeholder="REQ Number">
-				</paper-input>
-
-				<paper-button class="surveyInput submit" raised on-tap="_add" style="margin: 12px">
-					<iron-icon icon="add-circle"></iron-icon>
-					Add survey
-				</paper-button>
-
+			<div class="flex">
+				<survey-grid></survey-grid>
 			</div>
-
-			<survey-grid items="{{users}}"></survey-grid>
 
 		</div>
 
@@ -161,12 +105,7 @@
 
         static get properties () {
           return {
-            newUser : {
-              type  : Object,
-              value : function () {
-                return {};
-              }
-            }
+
           };
         }
 
@@ -174,11 +113,6 @@
           return [
             '_applicationChanged(selections.application)'
           ];
-        }
-
-        _add () {
-          this.push( 'users', this.newUser );
-          this.newUser = {};
         }
 
         _confirmError ( err ) {
@@ -192,7 +126,6 @@
 
         ready () {
           super.ready();
-          this.users = [];
           //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
         }
       }
