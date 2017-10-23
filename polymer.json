@@ -7,7 +7,7 @@
     "src/my-survey-grid",
     "src/my-survey-view",
     "src/shared-styles",
-    "src/submission-dialog",
+    "src/submission-dialog"
   ],
   "sources": [
     "src/**/*",

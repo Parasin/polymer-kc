@@ -64,7 +64,6 @@
 				font            : 500 13px "Open Sans", sans-serif;
 				color           : rgb(148, 154, 171);
 				--divider-color : rgb(223, 232, 239);
-
 								--vaadin-grid-header-cell: {
 									border-bottom   : 1px solid rgba(208, 217, 225, 0.9);
 									border-top      : 1px solid rgba(248, 250, 252, 0.9);
@@ -98,16 +97,15 @@
 			}
 		</style>
 
-		<!--<iron-ajax id="dbQueryIA"
-				   auto
-				   url="http://138.85.123.229/php/dbquery.php"
+		<iron-ajax id="surveyIA"
+				   url="http://138.85.123.229/php/bulkEmail.php"
 				   content-type="application/x-www-form-urlencoded"
 				   method="POST"
-				   body="[[params]]"
+				   body="[[body]]"
 				   on-response="handleResponse"
 				   last-response="{{response}}"
 				   on-error="_confirmError">
-		</iron-ajax>-->
+		</iron-ajax>
 
 		<div class="container flex horizontal" style="margin-bottom: 0">
 			<div class="flex">
@@ -210,7 +208,15 @@
 			</vaadin-grid-column>
 
 		</vaadin-grid>
-
+		<template is="dom-if" if="[[items.length]]">
+			<paper-button class="submit"
+						  style="margin: 12px 0 0 0"
+						  on-tap="_sendSurveys">
+				<iron-icon icon="send" style="margin-right: 8px"></iron-icon>
+				Send
+			</paper-button>
+			<paper-tooltip for="addRowBtn" position="" offset="2">Add survey</paper-tooltip>
+		</template>
 	</template>
 
 	<script>
@@ -245,19 +251,43 @@
           this.$.grid.clearCache();
         }
 
+        _sendSurveys () {
+          this.body = [];
+		  this.body.bulk = [];
+          for ( let survey of this.items ) {
+            this.body.bulk.push( {
+              firs : survey.firstName.trim(),
+              last : survey.lastName.trim(),
+              email : survey.email.trim(),
+              reqn : survey.req.trim(),
+              reqt : survey.type.trim(),
+              tool : survey.app.trim()
+            } );
+          }
+          this.body.bulk = JSON.stringify( this.body.bulk );
+          this.$.surveyIA.generateRequest();
+        }
+
         _confirmError ( err ) {
-          this.$.applications.disabled = true;
           console.error( err );
         }
 
+        //TODO: Handle response with paper-toast
         handleResponse ( res ) {
-
+          console.log( res );
         }
 
         ready () {
           super.ready();
-          this.items = [];
-          //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
+          this.items = [ {
+            firstName : 'Evan',
+            lastName  : 'Bechtol',
+            email     : 'evan.bechtol@ericsson.com',
+            app       : 'TEST',
+            req       : 'TEST',
+            type      : 'TEST'
+          } ];
+          this.body  = {};
         }
 
         _remove ( e ) {
