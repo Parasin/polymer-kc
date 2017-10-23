@@ -14,6 +14,8 @@
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 
@@ -77,12 +79,12 @@
 			}
 		</style>
 
-		<iron-ajax id="dbQueryIA"
+		<iron-ajax id="submissionIA"
 				   auto
-				   url="http://138.85.123.229/php/dbquery.php"
+				   url="http://138.85.123.229/php/email.php"
 				   content-type="application/x-www-form-urlencoded"
 				   method="POST"
-				   body="[[params]]"
+				   body="[[body]]"
 				   on-response="handleResponse"
 				   last-response="{{response}}"
 				   on-error="_confirmError">
@@ -98,21 +100,29 @@
 			</div>
 			<paper-dialog-scrollable>
 				<div id="submissionForm" class="layout container flex vertical">
-					<paper-dropdown-menu id="application"
-										 label="Applications"
-										 placeholder="Select An Application"
-										 value="{{submissionSelections.application}}">
-						<paper-listbox slot="dropdown-content" selected="{{submissionSelections.applicationIdx}}">
-							<template is="dom-repeat" items="[[applications]]">
-								<paper-item value="[[item]]">[[item]]</paper-item>
-							</template>
-						</paper-listbox>
-					</paper-dropdown-menu>
+					<div class="subInput">
+						<h4>Submission type</h4>
+						<paper-radio-group selected="{{submission.type}}">
+							<paper-radio-button name="new">Add</paper-radio-button>
+							<paper-radio-button name="existing">Update</paper-radio-button>
+							<paper-radio-button name="delete">Delete</paper-radio-button>
+						</paper-radio-group>
+					</div>
+					<div class="subInput">
+						<paper-input id="application"
+									 label="Application"
+									 placeholder="Enter a application"
+									 required
+									 value="{{submission.application}}"
+									 auto-validate>
+						</paper-input>
+					</div>
 					<div class="subInput">
 						<paper-input id="category"
 									 label="Category"
 									 placeholder="Enter a category"
 									 required
+									 value="{{submission.category}}"
 									 auto-validate>
 						</paper-input>
 					</div>
@@ -121,6 +131,7 @@
 									 label="Sub category"
 									 placeholder="Enter a sub category"
 									 required
+									 value="{{submission.subCategory}}"
 									 auto-validate>
 						</paper-input>
 					</div>
@@ -129,6 +140,7 @@
 									 label="Issue"
 									 placeholder="What's the issue?"
 									 required
+									 value="{{submission.issue}}"
 									 auto-validate>
 						</paper-input>
 					</div>
@@ -136,7 +148,7 @@
 						<div class="textAreas">
 							<paper-textarea id="script"
 											label="Script"
-											value="{{subScript}}"
+											value="{{submission.script}}"
 											placeholder="Type or paste your script here">
 							</paper-textarea>
 						</div>
@@ -145,7 +157,7 @@
 						<div class="textAreas">
 							<paper-textarea id="workInstructions"
 											label="Work Instructions"
-											value="{{subWorkInstructions}}"
+											value="{{submission.workInstructions}}"
 											placeholder="Type or paste related work instructions">
 							</paper-textarea>
 						</div>
@@ -154,6 +166,7 @@
 						<paper-input id="docLink"
 									 type="url"
 									 label="Document URL"
+									 value="{{submission.docUrl}}"
 									 placeholder="https://www.someUrl.com">
 						</paper-input>
 					</div>
@@ -164,7 +177,7 @@
 					<iron-icon icon="clear"></iron-icon>
 					Cancel
 				</paper-button>
-				<paper-button class="submit" raised>
+				<paper-button class="submit" raised on-tap="_submit">
 					<iron-icon icon="check"></iron-icon>
 					Submit
 				</paper-button>
@@ -180,40 +193,20 @@
 
         static get properties () {
           return {
-            applications : Array,
-
             body : Object,
-
-            docLink : String,
 
             opened : {
               type  : Boolean,
               value : false
             },
 
-            params : {
-              type  : Object,
-              value : {
-                tools : true
-              }
-            },
-
-            script : String,
-
-            selectedSubmission : {
-              type  : Number,
-              value : 0
-            },
-
-            submissionSelections : {
+            submission : {
               type   : Object,
               notify : true,
               value  : function () {
                 return {};
               }
-            },
-
-            workInstruction : String
+            }
           };
         }
 
@@ -223,28 +216,20 @@
           ];
         }
 
-        handleResponse ( res ) {
-
-        }
-
-        _confirmError ( err ) {
-          this.$.applications.disabled = true;
-          console.error( err );
-        }
-
-        _selectionChanged ( selection ) {
-          let value;
-
-          if ( selection === 'application' ) {
-            value = this.selections.application ? selection.application : 'Select an application';
-          }
-          return value;
-        }
-
         _closeDialog () {
           this.$.submitDialog.cancel();
           this._resetForm();
           this.opened = false;
+        }
+
+        _confirmError ( err ) {
+          //this.$.applications.disabled = true;
+          console.error( err );
+        }
+
+        //TODO handle response with paper-toast
+        handleResponse ( res ) {
+
         }
 
         _openDialog () {
@@ -253,18 +238,50 @@
           }
         }
 
-        _resetForm () {
-          this.$.application.value      = undefined;
-          this.$.category.value         = undefined;
-          this.$.subCategory.value      = undefined;
-          this.$.issue.value            = undefined;
-          this.$.script.value           = undefined;
-          this.$.workInstructions.value = undefined;
-          this.$.docLink.value          = undefined;
+        ready () {
+          this.body = {};
+
+          this.submission.application      = 'TEST';
+          this.submission.category         = 'TEST';
+          this.submission.docUrl           = 'TEST';
+          this.submission.email            = 'evan.bechtol@ericsson.com';
+          this.submission.issue            = 'TEST';
+          this.submission.name             = 'TEST';
+          this.submission.script           = 'TEST';
+          this.submission.subCategory      = 'TEST';
+          this.submission.workInstructions = 'TEST';
+          this.submission.type             = 'new';
+          super.ready();
         }
 
-        ready () {
-          super.ready();
+        _resetForm () {
+          this.submission.application      = undefined;
+          this.submission.category         = undefined;
+          this.submission.docUrl           = undefined;
+          this.submission.email            = undefined;
+          this.submission.issue            = undefined;
+          this.submission.name             = undefined;
+          this.submission.script           = undefined;
+          this.submission.subCategory      = undefined;
+          this.submission.type             = undefined;
+          this.submission.workInstructions = undefined;
+        }
+
+        _submit () {
+          this.body.application      = this.submission.application;
+          this.body.category         = this.submission.category;
+          this.body.document_link    = this.submission.docUrl;
+          this.body.email            = this.submission.email;
+          this.body.issue            = this.submission.issue;
+          this.body.name             = this.submission.name;
+          this.body.script           = this.submission.script;
+          this.body.subcategory      = this.submission.subCategory;
+          this.body.submit           = 'submit';
+          this.body.type             = this.submission.type;
+          this.body.work_instruction = this.submission.workInstructions;
+
+          this.$.submissionIA.generateRequest();
+          this._resetForm();
         }
       }
 
