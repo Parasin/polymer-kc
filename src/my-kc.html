@@ -70,6 +70,19 @@
 				margin : 0 !important;
 			}
 
+			#submitBtnContainer {
+				margin : 12px 0;
+			}
+
+			#submitBtn {
+				background-color : var(--google-blue-500);
+				color            : white;
+								 --paper-button-raised-keyboard-focus: {
+									 background-color : var(--paper-indigo-800) !important;
+									 color            : white !important;
+								 };
+			}
+
 			.textAreas {
 				margin : 0;
 				color  : var(--google-grey-100);
@@ -91,7 +104,7 @@
 
 				}
 
-				#selections, .textAreas {
+				#selections, #submitBtnContainer, .textAreas {
 					@apply --layout-vertical;
 				}
 
@@ -109,7 +122,13 @@
 				   on-error="_confirmError">
 		</iron-ajax>
 
-		<paper-icon-button id="submitBtn" icon="add-circle" on-tap="_openDialog"></paper-icon-button>
+		<div id="submitBtnContainer" class="layout container flex horizontal">
+			<paper-button id="submitBtn" on-tap="_openDialog" raised>
+				<iron-icon icon="add-circle" style="margin-right: 8px"></iron-icon>
+				Submit Content
+			</paper-button>
+		</div>
+
 		<div id="selections" class="card layout container flex horizontal">
 			<paper-dropdown-menu id="applications"
 								 label="Applications"
