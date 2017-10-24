@@ -31,7 +31,8 @@
     "vaadin-grid": "vaadin/vaadin-grid#^3.0.2",
     "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.1",
     "paper-radio-group": "PolymerElements/paper-radio-group#^2.0.0",
-    "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0"
+    "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0",
+    "iron-list": "PolymerElements/iron-list#^2.0.11"
   },
   "resolutions": {
     "polymer": "^2.0.0"
