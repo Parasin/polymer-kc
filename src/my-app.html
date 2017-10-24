@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				<app-header slot="header" condenses reveals effects="waterfall">
 					<app-toolbar>
 						<paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
-						<div main-title>My App</div>
+						<div main-title>Knowledge Catalog</div>
 					</app-toolbar>
 				</app-header>
 
@@ -150,7 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         _routePageChanged ( page ) {
           // If no page was found in the route data, page will be an empty string.
           // Deault to 'view1' in that case.
-          this.page = page || 'view1';
+          this.page = page || 'kc';
 
           // Close a non-persistent drawer when the page & route are changed.
           if ( !this.$.drawer.persistent ) {
