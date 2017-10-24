@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
@@ -19,11 +9,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="my-icons.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="login-dialog.html">
 
 <link rel="lazy-import" href="submission-dialog.html">
 <link rel="lazy-import" href="my-survey-view.html">
+<link rel="lazy-import" href="my-profile.html">
 <link rel="lazy-import" href="my-kc.html">
 <link rel="lazy-import" href="my-view404.html">
 
@@ -36,10 +30,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				display               : block;
 			}
-
-			/*app-drawer-layout:not([narrow]) [drawer-toggle] {
-			  display: none;
-			}*/
 
 			app-header {
 				color            : #fff;
@@ -81,8 +71,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			<app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
 				<app-toolbar>Menu</app-toolbar>
 				<iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-					<a name="kc" href="[[rootPath]]kc">KC</a>
-					<a name="survey" href="[[rootPath]]survey-view">Survey</a>
+					<a name="profile" href="[[rootPath]]profile" style="border-bottom: 1px solid var(--google-grey-500)"><iron-icon icon="face" style="margin-right: 4px"></iron-icon>My Profile</a><br/>
+					<a name="kc" href="[[rootPath]]kc"><iron-icon icon="question-answer" style="margin-right: 4px"></iron-icon>Knowledge Catalog</a>
+					<a name="survey" href="[[rootPath]]survey-view"><iron-icon icon="markunread" style="margin-right: 4px"></iron-icon>Send Surveys</a>
 				</iron-selector>
 			</app-drawer>
 
@@ -91,8 +82,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 				<app-header slot="header" condenses reveals effects="waterfall">
 					<app-toolbar>
-						<paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+						<paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
 						<div main-title>Knowledge Catalog</div>
+						<span>
+							<span hidden$="[[token]]">
+								<paper-icon-button id="loginBtn"
+												   icon="account-circle"
+												   aria-label="Log in"
+												   class="fade-in"
+												   on-tap="_openDialog">
+								</paper-icon-button>
+								<paper-tooltip for="loginBtn">Login</paper-tooltip>
+							</span>
+							<span hidden$="[[!token]]">
+								<paper-icon-button id="authStatus"
+												   icon="verified-user"
+												   aria-label="Logged in">
+								</paper-icon-button>
+								<paper-tooltip for="authStatus">Logged in</paper-tooltip>
+								<paper-icon-button id="logoutBtn"
+												   icon="exit-to-app"
+												   aria-label="Log out"
+												   class="fade-in"
+												   on-tap="_logOut">
+								</paper-icon-button>
+								<paper-tooltip for="logoutBtn">Logout</paper-tooltip>
+							</span>
+						</span>
 					</app-toolbar>
 				</app-header>
 
@@ -102,14 +118,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						fallback-selection="view404"
 						role="main">
 					<my-kc name="kc"></my-kc>
+					<my-profile name="profile"
+								route="[[subroute]]"
+								offline="[[offline]]"
+								user="{{user}}"
+								token="[[token]]">
+					</my-profile>
 					<my-survey-view name="survey-view"></my-survey-view>
 					<my-view404 name="view404"></my-view404>
 				</iron-pages>
 			</app-header-layout>
 		</app-drawer-layout>
 
-		<sub-dialog opened="{{opened}}"></sub-dialog>
+		<iron-localstorage id="localStoreToken" name="token" value="{{token}}"></iron-localstorage>
+		<iron-localstorage id="localStoreUser" name="user" value="{{user}}"></iron-localstorage>
 
+		<sub-dialog opened="{{opened}}"></sub-dialog>
+		<login-dialog id="loginDialog" authenticated="{{authenticated}}" opened="{{loginDialogOpened}}"></login-dialog>
 	</template>
 
 	<script>
@@ -120,16 +145,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         static get properties () {
           return {
-            page      : {
+            authenticated : {
+              type   : Boolean,
+              value  : false,
+              notify : true
+            },
+
+            page : {
               type               : String,
               reflectToAttribute : true,
               observer           : '_pageChanged'
             },
-            routeData : Object,
-            subroute  : String,
-            // This shouldn't be neccessary, but the Analyzer isn't picking up
+
             // Polymer.Element#rootPath
-            rootPath  : String
+            rootPath : String,
+
+            routeData : Object,
+
+            // This shouldn't be necessary, but the Analyzer isn't picking up
+            subroute : String,
+
+            token : {
+              type   : String,
+              notify : true
+            }
           };
         }
 
@@ -139,8 +178,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           ];
         }
 
+        _authenticated ( e ) {
+          if ( e.detail && e.detail.user && e.detail.token ) {
+            this.token = e.detail.token;
+            this.user  = e.detail.user;
+            this.set( 'authenticated', true );
+          }
+        }
+
+        _logOut () {
+          this.set( 'token', null );
+          this.set( 'user', null );
+          this.set( 'authenticated', false );
+          this.set( 'route.path', '/kc' );
+        }
+
         ready () {
           super.ready();
+          this.loginDialogOpened = false;
+          this.addEventListener( 'authenticated', ( e ) => this._authenticated( e ) );
           this.addEventListener( 'toggle-sub-dialog', function ( e ) {
             this._openSubDialog( e );
           } );
@@ -170,6 +226,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         _showPage404 () {
           this.page = 'view404';
+        }
+
+        _openDialog () {
+          if ( !this.authenticated ) {
+            this.loginDialogOpened = false;
+            this.loginDialogOpened = true;
+          }
         }
 
         _openSubDialog ( e ) {

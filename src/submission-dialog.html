@@ -77,8 +77,8 @@
 				   method="POST"
 				   body="[[body]]"
 				   on-response="handleResponse"
-				   last-response="{{response}}"
-				   on-error="_confirmError">
+				   on-error="_confirmError"
+				   last-response="{{response}}">
 		</iron-ajax>
 
 		<paper-dialog id="submitDialog"
@@ -219,7 +219,7 @@
 
         //TODO handle response with paper-toast
         handleResponse ( res ) {
-
+		   console.log('hihi');
         }
 
         _openDialog () {
