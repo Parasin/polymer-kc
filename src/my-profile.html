@@ -47,6 +47,12 @@
 				color            : #666666;
 			}
 
+			#pwChangeBtn {
+				background-color : var(--google-blue-500);
+				color            : white;
+				margin: 12px 0;
+			}
+
 			[hidden] {
 				display : none !important;
 			}
@@ -60,6 +66,11 @@
 				#profileContainer {
 					@apply --layout-vertical;
 				}
+
+				#pwChangeBtn {
+					width: 100%;
+					padding: 1em;
+				}
 			}
 
 		</style>
@@ -68,11 +79,11 @@
 				   debounce-duration="3000"
 				   url="/user/social"
 				   content-type="application/json"
-				   headers="[[ headers ]]"
+				   headers="[[headers]]"
 				   handle-as="json"
 				   method="GET"
 				   on-response="_confirmComplete"
-				   last-response="{{ response }}"
+				   last-response="{{response}}"
 				   on-error="_confirmError">
 		</iron-ajax>
 
@@ -114,6 +125,13 @@
 								<iron-icon icon="mail" slot="prefix"
 										   style="padding-right: 5px; opacity: 0.8"></iron-icon>
 							</paper-input>
+							<paper-button id="pwChangeBtn"
+										  aria-label="Change Password"
+										  raised
+										  on-tap="_openDialog">
+								<iron-icon icon="lock-outline" style="margin-right: 8px;"></iron-icon>
+								Change Password
+							</paper-button>
 						</div>
 						<div class="flex" style="margin-left: 8px;">
 							<div class=" list">
@@ -177,6 +195,7 @@
               computed : '_computeFullName( user.firstName, user.lastName )'
             },
 
+
             token : {
               type     : String,
               observer : '_getSocial'
@@ -201,11 +220,21 @@
 
         ready () {
           super.ready();
+          this.opened = false;
           Polymer.RenderStatus.afterNextRender( this, () => {
 
           } );
         }
 
+        _openDialog () {
+          if ( !this.opened ) {
+            this.dispatchEvent( new CustomEvent( 'toggle-pw-dialog', {
+              bubbles  : true,
+              composed : true,
+              detail   : { opened : true }
+            } ) );
+          }
+        }
 
         _computeFullName ( firstName, lastName ) {
           return firstName + ' ' + lastName;

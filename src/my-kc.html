@@ -431,15 +431,15 @@
           return value;
         }
 
-        _openDialog () {
-          if ( !this./*$.submitDialog.*/opened ) {
-            this.dispatchEvent( new CustomEvent( 'toggle-sub-dialog', {
-              bubbles  : true,
-              composed : true,
-              detail   : { opened : true }
-            } ) );
-          }
-        }
+			_openDialog () {
+			  if ( !this.opened ) {
+				this.dispatchEvent( new CustomEvent( 'toggle-sub-dialog', {
+				  bubbles  : true,
+				  composed : true,
+				  detail   : { opened : true }
+				} ) );
+			  }
+			}
 
         ready () {
           super.ready();

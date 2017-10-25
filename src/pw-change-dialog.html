@@ -1,0 +1,322 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="password-change-dialog">
+	<template>
+		<style>
+			:host {
+				display : block;
+				padding : 10px;
+			}
+
+			.demo-label {
+				box-sizing       : border-box;
+				padding          : 10px;
+				margin           : 24px auto 0;
+				background-color : var(--google-blue-500);
+				color            : white;
+				text-transform   : uppercase;
+			}
+
+			paper-button:disabled,
+			paper-button[disabled] {
+				background-color : #cccccc;
+				color            : #666666;
+			}
+
+			.pwChangeSuccess {
+				-webkit-animation-name      : bounce;
+				animation-name              : bounce;
+				color                       : #0b8043;
+				height                      : 40px;
+				width                       : 40px;
+				top                         : 15px;
+				position                    : relative;
+				float                       : right;
+				-webkit-animation-duration  : 1s;
+				animation-duration          : 1s;
+				-webkit-animation-fill-mode : both;
+				animation-fill-mode         : both;
+			}
+
+			[hidden] {
+				display : none !important;
+			}
+
+			@-webkit-keyframes bounce {
+				0% {
+					-webkit-transform : translateY(0);
+					opacity           : 0;
+				}
+				20% {
+					-webkit-transform : translateY(0);
+				}
+				50% {
+					-webkit-transform : translateY(0);
+				}
+				40% {
+					-webkit-transform : translateY(-25px);
+				}
+				60% {
+					-webkit-transform : translateY(-15px);
+				}
+				80% {
+					-webkit-transform : translateY(0);
+				}
+				100% {
+					-webkit-transform : translateY(0);
+					opacity           : 1;
+				}
+			}
+
+			@keyframes bounce {
+				0% {
+					-webkit-transform : translateY(0);
+					opacity           : 0;
+				}
+				20% {
+					-webkit-transform : translateY(0);
+				}
+				50% {
+					-webkit-transform : translateY(0);
+				}
+				40% {
+					-webkit-transform : translateY(-25px);
+				}
+				60% {
+					-webkit-transform : translateY(-15px);
+				}
+				80% {
+					-webkit-transform : translateY(0);
+				}
+				100% {
+					-webkit-transform : translateY(0);
+					opacity           : 1;
+				}
+			}
+
+			@media ( max-width : 767px ) {
+				:host {
+
+				}
+
+				#saveButton {
+					padding : 1em;
+				}
+			}
+		</style>
+
+		<iron-ajax id="pwChangeIA"
+				   debounce-duration="3000"
+				   url="http://localhost:3000/user/[[user._id]]"
+				   content-type="application/json"
+				   handle-as="json"
+				   headers="[[headers]]"
+				   method="PUT"
+				   body="[[body]]"
+				   on-response="_confirmComplete"
+				   on-error="_confirmError"
+				   last-response="{{response}}">
+		</iron-ajax>
+
+		<paper-dialog id="pwChangeDialog"
+					  entry-animation="scale-up-animation"
+					  exit-animation="fade-out-animation"
+					  opened="{{opened}}"
+					  with-backdrop>
+
+			<div class="container layout flex vertical">
+
+				<div class="flex layout horizontal">
+					<span>
+						<h3>Password Change
+							<iron-icon icon="help"
+									   id="helpFor"
+									   alt="Help"
+									   slot="prefix"
+									   style="width: 18px; position: relative; top: -2px; color: var(--google-grey-500)">
+							</iron-icon>
+						</h3>
+						<paper-tooltip for="helpFor" position="bottom" class="customToolTip" animation-delay="0">
+							<div>
+								<b>Password Rules:</b>
+								<br>
+								<span>
+									<ul>
+										 <li>One Uppercase</li>
+										 <li>One Lowercase</li>
+										 <li>One Number</li>
+										 <li>At least 8 characters long</li>
+										 <li>Cannot use your account email address in your password</li>
+									 </ul>
+								 </span>
+							</div>
+						</paper-tooltip>
+				  </span>
+				</div>
+
+				<div class="flex">
+
+					<paper-input id="currentPassword"
+								 invalid="{{validCurrentPassword}}"
+								 label="Current Password"
+								 autocomplete="off"
+								 type="password"
+								 error-message="Enter your current password"
+								 required
+								 auto-validate
+								 value="{{currPw}}"
+								 minlength="8">
+					</paper-input>
+
+					<paper-input invalid="{{validPassword}}"
+								 id="newPassword"
+								 required
+								 auto-validate
+								 label="New Password"
+								 autocomplete="off"
+								 type="password"
+								 error-message="[[errMsgNew]]"
+								 value="{{newPw}}"
+								 minlength="8">
+					</paper-input>
+
+					<paper-input invalid="{{validRePassword}}"
+								 id="retypepassword"
+								 required
+								 auto-validate
+								 label="Confirm Password"
+								 autocomplete="off"
+								 type="password"
+								 error-message="[[errMsgRe]]"
+								 value="{{newPwRepeat}}"
+								 minlength="8">
+					</paper-input>
+
+					<paper-button id="saveButton"
+								  class="demo-label"
+								  disabled="[[_computeSubmitDisabled(currPw, newPw, newPwRepeat)]]"
+								  on-tap="_savePassword">
+						<iron-icon icon="save" style="margin-right: 8px;"></iron-icon>
+						Save Password
+					</paper-button>
+
+				</div>
+
+			</div>
+
+		</paper-dialog>
+
+	</template>
+
+	<script>
+      class PwDialog extends Polymer.Element {
+
+        static get is () {
+          return 'password-change-dialog';
+        }
+
+        static get properties () {
+          return {
+            authenticated : {
+              type  : Boolean,
+              value : false
+            },
+
+            opened : {
+              type  : Boolean,
+              value : false
+            }
+          };
+        }
+
+        static get observers () {
+          return [];
+        }
+
+        constructor () {
+          super();
+        }
+
+        _closeDialog () {
+          this.$.pwChangeDialog.cancel();
+          this._resetForm();
+          this.opened = false;
+        }
+
+        _confirmComplete ( e ) {
+          if ( this.response && this.response.n && this.response.nModified && this.response.ok ) {
+            this.set( 'authenticated', true );
+            this.dispatchEvent( new CustomEvent( 'authenticated', {
+              bubbles  : true,
+              composed : true,
+              detail   : this.response
+            } ) );
+            setTimeout( function () {
+              this.$.pwChangeDialog.close();
+            }.bind( this ), 2000 );
+          }
+        }
+
+        _computeSubmitDisabled ( currPw, newPw, newPwRepeat ) {
+          return !( this._passwordValid( newPw ) && ( newPw === newPwRepeat ) && currPw && currPw.length && ( newPw !== currPw ) );
+        }
+
+        _confirmError ( e ) {
+          console.error( e.detail );
+        }
+
+        _passwordValid ( value ) {
+          return value ? value.match( /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$/g ) : false;
+        }
+
+        ready () {
+          super.ready();
+          this.errMsgNew            = '';
+          this.errMsgRe             = '';
+          this.body                 = null;
+          this.currPw               = null;
+          this.newPw                = null;
+          this.newPwRepeat          = null;
+          this.validCurrentPassword = false;
+        }
+
+        _resetForm () {
+          this.errMsgNew            = '';
+          this.errMsgRe             = '';
+          this.currPw               = null;
+          this.newPw                = null;
+          this.newPwRepeat          = null;
+          this.validCurrentPassword = false;
+        }
+
+        _savePassword ( event ) {
+          this.body    = {
+            firstName   : this.user.firstName,
+            lastName    : this.user.lastName,
+            email       : this.user.email,
+            currentPass : this.currPw,
+            newPass     : this.newPw
+          };
+          this.headers = { 'x-access-token' : this.token };
+          this.$.pwChangeIA.generateRequest();
+        }
+
+      }
+
+      customElements.define( PwDialog.is, PwDialog );
+	</script>
+
+</dom-module>

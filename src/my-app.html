@@ -14,6 +14,8 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="login-dialog.html">
+<link rel="import" href="pw-change-dialog.html">
+<link rel="import" href="my-icons.html">
 
 <link rel="lazy-import" href="submission-dialog.html">
 <link rel="lazy-import" href="my-survey-view.html">
@@ -82,32 +84,28 @@
 
 				<app-header slot="header" condenses reveals effects="waterfall">
 					<app-toolbar>
-						<paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+						<paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
 						<div main-title>Knowledge Catalog</div>
-						<span>
-							<span hidden$="[[token]]">
-								<paper-icon-button id="loginBtn"
-												   icon="account-circle"
-												   aria-label="Log in"
-												   class="fade-in"
-												   on-tap="_openDialog">
-								</paper-icon-button>
-								<paper-tooltip for="loginBtn">Login</paper-tooltip>
-							</span>
-							<span hidden$="[[!token]]">
-								<paper-icon-button id="authStatus"
-												   icon="verified-user"
-												   aria-label="Logged in">
-								</paper-icon-button>
-								<paper-tooltip for="authStatus">Logged in</paper-tooltip>
-								<paper-icon-button id="logoutBtn"
-												   icon="exit-to-app"
-												   aria-label="Log out"
-												   class="fade-in"
-												   on-tap="_logOut">
-								</paper-icon-button>
-								<paper-tooltip for="logoutBtn">Logout</paper-tooltip>
-							</span>
+						<span hidden$="[[token]]">
+							<paper-icon-button id="loginBtn"
+											   icon="account-circle"
+											   aria-label="Log in"
+											   on-tap="_openDialog">
+							</paper-icon-button>
+							<paper-tooltip for="loginBtn">Login</paper-tooltip>
+						</span>
+						<span hidden$="[[!token]]">
+							<paper-icon-button id="authStatus"
+											   icon="verified-user"
+											   aria-label="Logged in">
+							</paper-icon-button>
+							<paper-tooltip for="authStatus">Logged in</paper-tooltip>
+							<paper-icon-button id="logoutBtn"
+											   icon="exit-to-app"
+											   aria-label="Log out"
+											   on-tap="_logOut">
+							</paper-icon-button>
+							<paper-tooltip for="logoutBtn">Logout</paper-tooltip>
 						</span>
 					</app-toolbar>
 				</app-header>
@@ -133,6 +131,7 @@
 		<iron-localstorage id="localStoreToken" name="token" value="{{token}}"></iron-localstorage>
 		<iron-localstorage id="localStoreUser" name="user" value="{{user}}"></iron-localstorage>
 
+		<password-change-dialog user="[[user]]" opened="{{pwDialogOpened}}" token="[[token]]"></password-change-dialog>
 		<sub-dialog opened="{{opened}}"></sub-dialog>
 		<login-dialog id="loginDialog" authenticated="{{authenticated}}" opened="{{loginDialogOpened}}"></login-dialog>
 	</template>
@@ -196,10 +195,10 @@
         ready () {
           super.ready();
           this.loginDialogOpened = false;
+          this.pwDialogOpened = false;
           this.addEventListener( 'authenticated', ( e ) => this._authenticated( e ) );
-          this.addEventListener( 'toggle-sub-dialog', function ( e ) {
-            this._openSubDialog( e );
-          } );
+          this.addEventListener( 'toggle-pw-dialog', ( e ) => this._openPwDialog( e ) );
+          this.addEventListener( 'toggle-sub-dialog', ( e ) => this._openSubDialog( e ) );
 
         }
 
@@ -232,6 +231,13 @@
           if ( !this.authenticated ) {
             this.loginDialogOpened = false;
             this.loginDialogOpened = true;
+          }
+        }
+
+        _openPwDialog ( e ) {
+          if ( e.detail.opened ) {
+            this.pwDialogOpened = false;
+            this.pwDialogOpened = true;
           }
         }
 
