@@ -2,12 +2,15 @@
   "entrypoint": "index.html",
   "shell": "src/my-app.html",
   "fragments": [
-    "src/my-app",
-    "src/my-kc",
-    "src/my-survey-grid",
-    "src/my-survey-view",
-    "src/shared-styles",
-    "src/submission-dialog"
+    "src/my-app.html",
+    "src/my-kc.html",
+    "src/my-survey-grid.html",
+    "src/my-survey-view.html",
+    "src/shared-styles.html",
+    "src/submission-dialog.html",
+    "src/login-dialog.html",
+    "src/pw-change-dialog.html",
+    "src/my-profile.html"
   ],
   "sources": [
     "src/**/*",
