@@ -1,0 +1,349 @@
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="register-dialog">
+	<template>
+		<style include="shared-styles iron-flex iron-flex-alignment">
+			:host {
+				display : block;
+				padding : 10px;
+			}
+
+			paper-button.cancel {
+				background-color : #E32119;
+				padding          : 1em;
+				color            : white;
+			}
+
+			paper-button.submit {
+				background-color : #001f52;
+				padding          : 1em;
+				color            : white;
+			}
+
+			paper-dialog {
+				z-index : 1000;
+			}
+
+			.subInput {
+				@apply --layout-flex;
+				margin : 0 8px;
+			}
+
+			@-webkit-keyframes bounce {
+				0% {
+					-webkit-transform : translateY(0);
+					opacity           : 0;
+				}
+				20% {
+					-webkit-transform : translateY(0);
+				}
+				50% {
+					-webkit-transform : translateY(0);
+				}
+				40% {
+					-webkit-transform : translateY(-25px);
+				}
+				60% {
+					-webkit-transform : translateY(-15px);
+				}
+				80% {
+					-webkit-transform : translateY(0);
+				}
+				100% {
+					-webkit-transform : translateY(0);
+					opacity           : 1;
+				}
+			}
+
+			@keyframes bounce {
+				0% {
+					-webkit-transform : translateY(0);
+					opacity           : 0;
+				}
+				20% {
+					-webkit-transform : translateY(0);
+				}
+				50% {
+					-webkit-transform : translateY(0);
+				}
+				40% {
+					-webkit-transform : translateY(-25px);
+				}
+				60% {
+					-webkit-transform : translateY(-15px);
+				}
+				80% {
+					-webkit-transform : translateY(0);
+				}
+				100% {
+					-webkit-transform : translateY(0);
+					opacity           : 1;
+				}
+			}
+
+			.loginSuccess {
+				-webkit-animation-name      : bounce;
+				animation-name              : bounce;
+				color                       : #0b8043;
+				height                      : 40px;
+				width                       : 40px;
+				top                         : 15px;
+				position                    : relative;
+				float                       : right;
+				-webkit-animation-duration  : 1s;
+				animation-duration          : 1s;
+				-webkit-animation-fill-mode : both;
+				animation-fill-mode         : both;
+			}
+
+			[hidden] {
+				display : none !important;
+			}
+
+			@media ( min-width : 767px ) {
+				paper-dialog {
+					max-width : 30vw;
+				}
+			}
+
+			@media ( max-width : 767px ) {
+				:host {
+				}
+
+				.textAreas {
+					@apply --layout-vertical;
+				}
+
+			}
+		</style>
+
+		<iron-ajax id="registerIA"
+				   url="http://localhost:3000/user"
+				   content-type="application/json"
+				   method="POST"
+				   body="[[body]]"
+				   on-response="_handleResponse"
+				   on-error="_handleError"
+				   last-response="{{response}}">
+		</iron-ajax>
+
+		<paper-dialog id="registerDialog"
+					  entry-animation="scale-up-animation"
+					  exit-animation="fade-out-animation"
+					  opened="{{opened}}" with-backdrop>
+			<div>
+				<h2>User Registration</h2>
+				<p>Please use the below form to register for an account.</p>
+				<template is="dom-if" if="[[error]]">
+					<p id="error" style="color: red">[[error]]</p>
+				</template>
+				<template is="dom-if" if="[[success]]">
+					<p id="success">[[success]]</p>
+				</template>
+			</div>
+			<paper-dialog-scrollable>
+				<div id="submissionForm" class="layout container flex vertical">
+					<div class="subInput">
+						<paper-input id="userName"
+									 label="Username"
+									 placeholder="ex) johnDoe10"
+									 required
+									 value="{{submission.userName}}"
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="firstName"
+									 label="First Name"
+									 placeholder="John"
+									 required
+									 value="{{submission.firstName}}"
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="lastName"
+									 label="Last Name"
+									 placeholder="Doe"
+									 required
+									 value="{{submission.lastName}}"
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="email"
+									 label="Email"
+									 placeholder="johnDoe10@example.com"
+									 required
+									 type="email"
+									 value="{{submission.email}}"
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="password"
+									 label="Password"
+									 required
+									 type="password"
+									 value="{{submission.password}}"
+									 auto-validate>
+						</paper-input>
+					</div>
+					<div class="subInput">
+						<paper-input id="passwordConfirm"
+									 label="Confirm Password"
+									 required
+									 type="password"
+									 value="{{submission.passwordConf}}"
+									 auto-validate>
+						</paper-input>
+					</div>
+
+				</div>
+			</paper-dialog-scrollable>
+			<div class="layout horizontal end-justified">
+				<span hidden$="[[!success]]" style="margin-right: 3em">
+					<iron-icon icon="check-circle" class="loginSuccess layout center" style="width: 40px"></iron-icon>
+				</span>
+				<paper-button class="cancel" raised on-tap="_closeDialog">
+					<iron-icon icon="clear"></iron-icon>
+					Cancel
+				</paper-button>
+				<paper-button class="submit" raised on-tap="_submit">
+					<iron-icon icon="check"></iron-icon>
+					Submit
+				</paper-button>
+			</div>
+		</paper-dialog>
+	</template>
+
+	<script>
+      class RegisterDialog extends Polymer.Element {
+        static get is () {
+          return 'register-dialog';
+        }
+
+        static get properties () {
+          return {
+            body : Object,
+
+            error : {
+              type : String
+            },
+
+            success : {
+              type  : Boolean,
+              value : false
+            },
+
+            opened : {
+              type  : Boolean,
+              value : false
+            },
+
+            submission : {
+              type   : Object,
+              notify : true,
+              value  : function () {
+                return {};
+              }
+            }
+          };
+        }
+
+        static get observers () {
+          return [
+            '_openDialog(opened)'
+          ];
+        }
+
+        _closeDialog () {
+          this.$.registerDialog.cancel();
+          this._resetForm();
+          this.opened = false;
+        }
+
+        _handleError ( err ) {
+          console.error( err );
+          this.error = err.detail.error.message;
+        }
+
+        //TODO handle response with paper-toast
+        _handleResponse ( res ) {
+          this.success = true;
+
+          setTimeout( function () {
+            this.$.registerDialog.cancel();
+            this._resetForm();
+            if ( this.response && this.response.token && this.response.user ) {
+              this.token         = this.response.token;
+              this.user          = this.response.user;
+              this.authenticated = true;
+              this._resetForm();
+              this.dispatchEvent( new CustomEvent( 'authenticated', {
+                bubbles  : true,
+                composed : true,
+                detail   : this.response
+              } ) );
+            }
+          }.bind( this ), 2000 );
+        }
+
+        _openDialog () {
+          if ( this.opened && !this.$.registerDialog.opened ) {
+            this.$.registerDialog.open();
+          }
+        }
+
+        ready () {
+          this.error           = undefined;
+          this.response        = undefined;
+          this.body            = {};
+          this.submission      = {
+            userName     : 'eevabec3',
+            firstName    : 'Evan',
+            lastName     : 'Bechtol',
+            password     : 'Password',
+            passwordConf : 'Password',
+            email        : 'evanbechtol34@gmail.com'
+          };
+          this.submission.type = 'new';
+          super.ready();
+        }
+
+        _resetForm () {
+          this.set( 'submission.username', undefined );
+          this.set( 'submission.firstName', undefined );
+          this.set( 'submission.lastName', undefined );
+          this.set( 'submission.email', undefined );
+          this.set( 'submission.password', undefined );
+          this.set( 'submission.passwordConf', undefined );
+        }
+
+        _submit () {
+          this.body.userName  = this.submission.userName;
+          this.body.firstName = this.submission.firstName;
+          this.body.lastName  = this.submission.lastName;
+          this.body.password  = this.submission.password;
+          this.body.email     = this.submission.email;
+
+          this.$.registerIA.generateRequest();
+        }
+      }
+
+      window.customElements.define( RegisterDialog.is, RegisterDialog );
+	</script>
+</dom-module>
