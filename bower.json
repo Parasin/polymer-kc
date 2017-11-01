@@ -32,7 +32,9 @@
     "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.1",
     "paper-radio-group": "PolymerElements/paper-radio-group#^2.0.0",
     "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0",
-    "iron-list": "PolymerElements/iron-list#^2.0.11"
+    "iron-list": "PolymerElements/iron-list#^2.0.11",
+    "paper-progress": "PolymerElements/paper-progress#^2.0.1",
+    "paper-header-panel": "PolymerElements/paper-header-panel#^2.0.0"
   },
   "resolutions": {
     "polymer": "^2.0.0"
