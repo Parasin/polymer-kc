@@ -28,13 +28,13 @@
 
 			paper-button.cancel {
 				background-color : #E32119;
-				padding: 1em;
+				padding          : 1em;
 				color            : white;
 			}
 
 			paper-button.submit {
 				background-color : #001f52;
-				padding: 1em;
+				padding          : 1em;
 				color            : white;
 			}
 
@@ -60,7 +60,6 @@
 
 			@media ( max-width : 767px ) {
 				:host {
-
 				}
 
 				.textAreas {
@@ -219,7 +218,7 @@
 
         //TODO handle response with paper-toast
         handleResponse ( res ) {
-		   console.log('hihi');
+          console.log( 'hihi' );
         }
 
         _openDialog () {
@@ -229,18 +228,8 @@
         }
 
         ready () {
-          this.body = {};
-
-          this.submission.application      = 'TEST';
-          this.submission.category         = 'TEST';
-          this.submission.docUrl           = 'TEST';
-          this.submission.email            = 'evan.bechtol@ericsson.com';
-          this.submission.issue            = 'TEST';
-          this.submission.name             = 'TEST';
-          this.submission.script           = 'TEST';
-          this.submission.subCategory      = 'TEST';
-          this.submission.workInstructions = 'TEST';
-          this.submission.type             = 'new';
+          this.body            = {};
+          this.submission.type = 'new';
           super.ready();
         }
 
