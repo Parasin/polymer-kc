@@ -7,11 +7,13 @@
 <link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dropdown-input/paper-dropdown-input.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
@@ -77,11 +79,11 @@
 			#submitBtn {
 				background-color : #001f52;
 				color            : white;
-				margin: 0 !important;
-				--paper-button-raised-keyboard-focus: {
-					background-color : #001f52 !important;
-					color            : white !important;
-				};
+				margin           : 0 !important;
+								 --paper-button-raised-keyboard-focus: {
+									 background-color : #001f52 !important;
+									 color            : white !important;
+								 };
 			}
 
 			.textAreas {
@@ -102,7 +104,6 @@
 
 			@media ( max-width : 767px ) {
 				:host {
-
 				}
 
 				#selections, #submitBtnContainer, .textAreas {
@@ -123,11 +124,46 @@
 				   on-error="_confirmError">
 		</iron-ajax>
 
+		<iron-ajax id="searchIA"
+				   auto
+				   url="http://138.85.123.229/php/search.php"
+				   content-type="application/x-www-form-urlencoded"
+				   method="POST"
+				   body='{ "search": true }'
+				   on-response="handleSearchResponse"
+				   last-response="{{searchContent}}"
+				   on-error="_confirmError">
+		</iron-ajax>
+
 		<div id="submitBtnContainer" class="layout container flex horizontal">
 			<paper-button id="submitBtn" on-tap="_openDialog" raised>
 				<iron-icon icon="add-circle" style="margin-right: 8px"></iron-icon>
 				Submit Content
 			</paper-button>
+			<div id="recentSearchContainer" style="margin-left: 24px" class="layout container flex horizontal center">
+				<paper-dropdown-input id="recentSearches"
+									  style="width: 350px"
+									  label="Recent Searches"
+									  filter-property="application"
+									  items="[[recentSearches]]">
+					<template>
+						<dom-repeat items="[[items]]" as="search">
+							<template>
+								<paper-item-body two-line
+												 label="[[search.application]]: [[search.issue]]"
+												 on-tap="_itemSelected"
+												 data="[[search]]"
+												 style="margin-left: 20px">
+									<div>[[search.application]]
+										<small>[[search.issue]]</small>
+									</div>
+
+								</paper-item-body>
+							</template>
+						</dom-repeat>
+					</template>
+				</paper-dropdown-input>
+			</div>
 		</div>
 
 		<div id="selections" class="card layout container flex horizontal">
@@ -261,6 +297,13 @@
               value : 0
             },
 
+			selectedFilters : {
+              type: Object,
+			  value: {
+                tool: 'Consilium'
+			  }
+			},
+
             selectedSubmission : {
               type  : Number,
               value : 0
@@ -335,6 +378,13 @@
             }
           }
         }
+
+        handleSearchResponse ( res ) {
+          if ( this.searchContent ) {
+            // debugger;
+          }
+        }
+
 
         _confirmError ( err ) {
           this.$.applications.disabled = true;
@@ -431,20 +481,82 @@
           return value;
         }
 
-			_openDialog () {
-			  if ( !this.opened ) {
-				this.dispatchEvent( new CustomEvent( 'toggle-sub-dialog', {
-				  bubbles  : true,
-				  composed : true,
-				  detail   : { opened : true }
-				} ) );
-			  }
-			}
+        _openDialog () {
+          if ( !this.opened ) {
+            this.dispatchEvent( new CustomEvent( 'toggle-sub-dialog', {
+              bubbles  : true,
+              composed : true,
+              detail   : { opened : true }
+            } ) );
+          }
+        }
 
         ready () {
           super.ready();
-          this.opened = false;
-          //this.addEventListener( 'iron-deselect', e => this._menuDeselect( e ) );
+          this.opened         = false;
+          this.recentSearches = [
+            {
+              application : 'ARM',
+              category    : 'Admin',
+              subCategory : 'Access',
+              issue       : 'New Account'
+            },
+            {
+              application : 'ARM',
+              category    : 'Admin',
+              subCategory : 'Access',
+              issue       : 'Updated Account'
+            },
+            {
+              application : 'Barn',
+              category    : 'Admin',
+              subCategory : 'Access',
+              issue       : 'Updated Account'
+            },
+            {
+              application : 'Consilium',
+              category    : 'Troubleshooting',
+              subCategory : 'How To',
+              issue       : 'Clear Browser Cache'
+            }
+          ];
+        }
+
+        _itemSelected ( item ) {
+          let search = item.model.__data.search;
+
+          delete this.params.tools;
+          delete this.params.category;
+          delete this.params.sub_category;
+          delete this.params.issue;
+          delete this.params.flag;
+          delete this.params.doc;
+
+          this.selections.application = this.selections.applicationIdx = null;
+          this.selections.category = this.selections.categoryIdx = null;
+          this.selections.subCategory = this.selections.subCategoryIdx = null;
+          this.selections.issue = this.selections.issueIdx = null;
+          this.docLink = null;
+
+          this.notifyPath( 'selections.applicationIdx' );
+          this.notifyPath( 'selections.categoryIdx' );
+          this.notifyPath( 'selections.subCategoryIdx' );
+          this.notifyPath( 'selections.issueIdx' );
+
+          this.$.categories._setSelectedItem( null );
+          this.$.subCategories._setSelectedItem( null );
+          this.$.issues._setSelectedItem( null );
+
+          this.$.subCategories.disabled = true;
+          this.$.issues.disabled        = true;
+
+          this.$.applications.value = this.selections.application = this.params.tool = this.params.table = search.application;
+          this.$.categories.value = this.selections.category = this.params.category = search.category;
+          this.$.subCategories.value = this.selections.subCategory = this.params.sub_category = search.subCategory;
+          this.$.issues.value = this.selections.issue = this.params.issue = search.issue;
+
+          this._issueChanged( search.issue );
+          console.log( search );
         }
       }
 
